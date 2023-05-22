@@ -1,0 +1,21 @@
+
+[project]
+name = "z-units"
+version = "0.1.0"
+description = "A simple unit converter for chemical engineering"
+authors = [
+    {name = "zenius", email = "zenius@outlook.com"},
+]
+dependencies = []
+requires-python = ">=3.7"
+readme = "README.md"
+license = {text = "MIT"}
+
+[build-system]
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
+
+[tool.pdm.dev-dependencies]
+test = [
+    "pytest>=7.3.1",
+]
