@@ -1,6 +1,7 @@
 from math import isclose
 
 from z_units import quantity as q
+from z_units.config import set_local_atmospheric_pressure, set_standard_temperature
 
 
 def test_length():
@@ -85,6 +86,8 @@ def test_substance():
     assert isclose(x.to('SCF').value, 836.56108, rel_tol=1e-4)
     assert isclose(x.to('MSCF').value, 836.56108e-3, rel_tol=1e-4)
     assert isclose(x.to('MMSCF').value, 836.56108e-6, rel_tol=1e-4)
+    set_standard_temperature(0)
+    assert isclose(x.to('Sm3').value, x.to('Nm3').value)
 
 
 def test_energy():
@@ -169,6 +172,8 @@ def test_pressure():
     assert isclose(x.to('inHg_32F_g').value, -0.39127, rel_tol=1e-4)
     assert isclose(x.to('inHg_60F_g').value, -0.39237, rel_tol=1e-4)
     assert isclose(q.Pressure(1, 'MPag').to('psi').value, 159.73368651, rel_tol=1e-4)
+    set_local_atmospheric_pressure(50)
+    assert isclose(x.to('kPag').value, 50)
 
 
 def test_volume_flow():

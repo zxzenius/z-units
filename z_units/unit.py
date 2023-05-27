@@ -1,11 +1,9 @@
 import re
+from typing import Union, Callable
 
-# 1 atmosphere (kPa)
+from .config import get_local_atmospheric_pressure, get_standard_temperature
 from .util import multi_replace
-
-ATM = 101.325
-# gravitational acceleration: in m/s**2
-G = 9.80665
+from . import constant
 
 
 def format_symbol_short(symbol: str) -> str:
@@ -29,34 +27,48 @@ def format_symbol_defined(symbol: str) -> str:
 
 class Unit:
     """
-    A class used to represent a Unit.
+    Class used to represent a Unit.
 
     For unit conversion, units belong to same 'family' (unit set)
     shall be converted from/to one 'base unit' as reference.
-    Creation: unit = Unit(name[, factor])
+
+    Creation: unit = Unit(name[, factor, offset])
+
     name: str
         the hysys-style name(symbol) of the unit,
         example: 'kg/s', 'm3/s', 'kJ/mol-C'
-        Simple form used to represent definition, as bellow:
-        'm3' = 'm**3', 'mol-C' = 'mol*C'
-    factor: numeric valve
-        conversion factor for converting this unit to base unit,
-        unit * factor = base unit
-    If unit conversion is nonlinear, to_base_unit() & from_base_unit()
-    have to be overridden
-    Example: kilometer = Unit('km', factor=1e3)
-    meter is base unit
 
-    Attributes
+        Simple form used to represent definition, as:
+        'm3' = 'm**3', 'mol-C' = 'mol*C'
+
+    factor, offset: numeric value or function,
+        for converting this unit to base unit.
+
+        unit * factor + offset = base unit
+
+    If unit conversion is nonlinear, to_base_unit() & from_base_unit()
+    have to be overridden.
+
+    Example: kilometer = Unit('km', factor=1e3)
+
+    Which meter is base unit
+
+    Property
     ----------
     symbol: str
         the hysys-style name(symbol) of the unit.
+
+    factor: float
+        factor value
+
+    offset: float
+        offset value
     """
 
-    def __init__(self, symbol: str, factor: float = 1, offset: float = 0):
+    def __init__(self, symbol: str, factor: Union[float, Callable] = 1, offset: Union[float, Callable] = 0):
         self._symbol = symbol.replace(' ', '')
-        self.factor = factor
-        self.offset = offset
+        self._factor = factor
+        self._offset = offset
 
     def to_base_unit(self, value: float):
         """
@@ -89,6 +101,20 @@ class Unit:
     @property
     def symbol(self):
         return self.symbol_short
+
+    @property
+    def factor(self):
+        if callable(self._factor):
+            return self._factor()
+
+        return self._factor
+
+    @property
+    def offset(self):
+        if callable(self._offset):
+            return self._offset()
+
+        return self._offset
 
     def __repr__(self):
         return f"<Unit('{self.symbol}')>"
@@ -180,16 +206,17 @@ newton = BaseUnit('N')
 kilogram_meter_per_second_squared = Unit('kg*m/s**2', factor=1)
 kilo_newton = Unit('kN', factor=1e3)
 dyne = Unit('dyn', factor=1e-5)
-kilogram_force = Unit('kgf', factor=G)
-tonne_force = Unit('tonf', factor=tonne.factor * G)
-pound_force = Unit('lbf', factor=pound.factor * G)
+kilogram_force = Unit('kgf', factor=constant.G)
+tonne_force = Unit('tonf', factor=tonne.factor * constant.G)
+pound_force = Unit('lbf', factor=pound.factor * constant.G)
 
 # substance, kmol
 kilomole = BaseUnit('kmol')
 mole = Unit('mol', factor=1e-3)
 normal_cubic_meter = Unit('Nm**3', factor=1 / 22.414)
 # @20 degC
-standard_cubic_meter = Unit('Sm**3', factor=normal_cubic_meter.factor * 273.15 / (273.15 + 20))
+standard_cubic_meter = Unit('Sm**3',
+                            factor=lambda: normal_cubic_meter.factor * 273.15 / (273.15 + get_standard_temperature()))
 # scf is @60 degF, so some math need to be done
 T_60F_inK = kelvin.from_base_unit(fahrenheit.to_base_unit(60))
 T_0C_inK = kelvin.from_base_unit(0)
@@ -226,7 +253,7 @@ megapascal = Unit('MPa', factor=1e3)
 bar = Unit('bar', factor=1e2)
 millibar = Unit('mbar', factor=0.1)
 pascal = Unit('Pa', factor=1e-3)
-atm = Unit('atm', factor=ATM)
+atm = Unit('atm', factor=constant.ATM)
 kg_force_per_square_centimeter = Unit('kgf/cm**2', factor=1e-3 * kilogram_force.factor / square_centimeter.factor)
 # psi = Unit('psi', factor=6.894757)
 psi = Unit('psi', factor=1e-3 * pound_force.factor / square_inch.factor)
@@ -235,17 +262,19 @@ torr = Unit('torr', factor=101.325 / 760)
 mm_Hg = Unit('mmHg_0C', factor=torr.factor)
 inch_Hg = Unit('inHg_32F', factor=3.386389)
 inch_Hg_60F = Unit('inHg_60F', factor=3.37685)
-kilopascal_gauge = Unit('kPag', offset=ATM)
-megapascal_gauge = Unit('MPag', factor=megapascal.factor, offset=ATM)
-bar_gauge = Unit('barg', factor=bar.factor, offset=ATM)
-millibar_gauge = Unit('mbarg', factor=millibar.factor, offset=ATM)
-kg_force_per_square_centimeter_gauge = Unit('kgf/cm**2_g', factor=kg_force_per_square_centimeter.factor, offset=ATM)
-psi_gauge = Unit('psig', factor=psi.factor, offset=ATM)
-pound_force_per_square_foot_gauge = Unit('lbf/ft**2_g', factor=pound_force_per_square_foot.factor, offset=ATM)
-torr_gauge = Unit('torr_g', factor=torr.factor, offset=ATM)
-mm_Hg_gauge = Unit('mmHg_0C_g', factor=mm_Hg.factor, offset=ATM)
-inch_Hg_gauge = Unit('inHg_32F_g', factor=inch_Hg.factor, offset=ATM)
-inch_Hg_60F_gauge = Unit('inHg_60F_g', factor=inch_Hg_60F.factor, offset=ATM)
+kilopascal_gauge = Unit('kPag', offset=get_local_atmospheric_pressure)
+megapascal_gauge = Unit('MPag', factor=megapascal.factor, offset=get_local_atmospheric_pressure)
+bar_gauge = Unit('barg', factor=bar.factor, offset=get_local_atmospheric_pressure)
+millibar_gauge = Unit('mbarg', factor=millibar.factor, offset=get_local_atmospheric_pressure)
+kg_force_per_square_centimeter_gauge = Unit('kgf/cm**2_g', factor=kg_force_per_square_centimeter.factor,
+                                            offset=get_local_atmospheric_pressure)
+psi_gauge = Unit('psig', factor=psi.factor, offset=get_local_atmospheric_pressure)
+pound_force_per_square_foot_gauge = Unit('lbf/ft**2_g', factor=pound_force_per_square_foot.factor,
+                                         offset=get_local_atmospheric_pressure)
+torr_gauge = Unit('torr_g', factor=torr.factor, offset=get_local_atmospheric_pressure)
+mm_Hg_gauge = Unit('mmHg_0C_g', factor=mm_Hg.factor, offset=get_local_atmospheric_pressure)
+inch_Hg_gauge = Unit('inHg_32F_g', factor=inch_Hg.factor, offset=get_local_atmospheric_pressure)
+inch_Hg_60F_gauge = Unit('inHg_60F_g', factor=inch_Hg_60F.factor, offset=get_local_atmospheric_pressure)
 
 # molar flow, base: kmol/s
 kilomole_per_second = BaseUnit('kmol/s')
