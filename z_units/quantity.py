@@ -26,12 +26,6 @@ class Quantity:
         value = self.unit_registry.get_unit(unit_symbol).from_base_unit(ref_value)
         return self.__class__(value, unit_symbol)
 
-    # def to_base(self):
-    #     if self.value is None:
-    #         return None
-    #     value = self._unit.to_base_unit(self.value)
-    #     return self.__class__(value)
-
     @property
     def unit_registry(self) -> UnitRegistry:
         return self.get_unit_registry()
