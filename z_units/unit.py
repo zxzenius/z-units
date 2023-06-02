@@ -7,6 +7,16 @@ from . import constant
 
 
 def format_symbol_short(symbol: str) -> str:
+    """
+    Convert defined unit symbol to simple style
+
+    Examples:
+        m ** 2 -> m2
+        m * s -> m-s
+        kJ / (C * kg) -> kJ/C-kg
+    :param symbol:
+    :return:
+    """
     if symbol:
         return multi_replace(symbol, {
             '**': '',
@@ -19,6 +29,11 @@ def format_symbol_short(symbol: str) -> str:
 
 
 def format_symbol_defined(symbol: str) -> str:
+    """
+    Format defined unit symbol, operator separated by space
+    :param symbol:
+    :return:
+    """
     if symbol:
         return re.sub(r'(\*{2}|\*|/)', r' \g<0> ', symbol)
 
@@ -35,7 +50,7 @@ class Unit:
     Creation: unit = Unit(name[, factor, offset])
 
     name: str
-        the hysys-style name(symbol) of the unit,
+        the simple style name(symbol) of the unit,
         example: 'kg/s', 'm3/s', 'kJ/mol-C'
 
         Simple form used to represent definition, as:
@@ -56,7 +71,7 @@ class Unit:
     Property
     ----------
     symbol: str
-        the hysys-style name(symbol) of the unit.
+        the simple style name(symbol) of the unit.
 
     factor: float
         factor value
@@ -238,7 +253,6 @@ gigacalorie = Unit('Gcal', factor=1e9 * calorie.factor)
 million_kilocalorie = Unit('MMkcal', factor=1e6 * kilocalorie.factor)
 british_thermal_unit = Unit('Btu', factor=1.055056)
 million_british_thermal_unit = Unit('MMBtu', factor=1e6 * british_thermal_unit.factor)
-# pound_force_foot = Unit('lbf*ft', factor=1.355818e-3)
 pound_force_foot = Unit('lbf*ft', factor=1e-3 * pound_force.factor * foot.factor)
 
 # delta temperature
@@ -376,11 +390,10 @@ calorie_per_kilomole_kelvin = Unit('cal/(kmol*K)', factor=calorie.factor / kilom
 
 # thermal conductivity, W/m-K
 watt_per_meter_kelvin = BaseUnit('W/(m*K)')
-# Btu_per_hour_foot_fahrenheit = Unit('Btu/(h*ft*F)', factor=1.730735)
 Btu_per_hour_foot_fahrenheit = Unit('Btu/(h*ft*F)', factor=1e3 * british_thermal_unit.factor / (
             hour.factor * foot.factor * delta_fahrenheit.factor))
-kilocalorie_per_meter_hour_celsuis = Unit('kcal/(m*h*C)', factor=1e3 * kilocalorie.factor / hour.factor)
-calorie_per_centimeter_second_celsuis = Unit('cal/(cm*s*C)', factor=1e3 * calorie.factor / centimeter.factor)
+kilocalorie_per_meter_hour_celsius = Unit('kcal/(m*h*C)', factor=1e3 * kilocalorie.factor / hour.factor)
+calorie_per_centimeter_second_celsius = Unit('cal/(cm*s*C)', factor=1e3 * calorie.factor / centimeter.factor)
 
 # viscosity, cP
 centipoise = BaseUnit('cP')
@@ -398,21 +411,21 @@ dyn_per_centimeter = Unit('dyn/cm', factor=1)
 pound_force_per_foot = Unit('lbf/ft', factor=1e3 * pound_force.factor / foot.factor)
 
 # mass capacity, kJ/kg-C
-kilojoule_per_gram_celsuis = Unit('kJ/(g*C)', factor=kilojoule.factor / gram.factor)
+kilojoule_per_gram_celsius = Unit('kJ/(g*C)', factor=kilojoule.factor / gram.factor)
 kilojoule_per_gram_kelvin = Unit('kJ/(g*K)', factor=kilojoule.factor / gram.factor)
-kilojoule_per_kilogram_celsuis = BaseUnit('kJ/(kg*C)')
+kilojoule_per_kilogram_celsius = BaseUnit('kJ/(kg*C)')
 kilojoule_per_kilogram_kelvin = Unit('kJ/(kg*K)', factor=1)
-joule_per_gram_celsuis = Unit('J/(g*C)', factor=1)
+joule_per_gram_celsius = Unit('J/(g*C)', factor=1)
 joule_per_gram_kelvin = Unit('J/(g*K)', factor=1)
-joule_per_kilogram_celsuis = Unit('J/(kg*C)', factor=joule.factor / kilogram.factor)
+joule_per_kilogram_celsius = Unit('J/(kg*C)', factor=joule.factor / kilogram.factor)
 joule_per_kilogram_kelvin = Unit('J/(kg*K)', factor=joule.factor / kilogram.factor)
-kilocalorie_per_gram_celsuis = Unit('kcal/(g*C)', factor=kilocalorie.factor / gram.factor)
+kilocalorie_per_gram_celsius = Unit('kcal/(g*C)', factor=kilocalorie.factor / gram.factor)
 kilocalorie_per_gram_kelvin = Unit('kcal/(g*K)', factor=kilocalorie.factor / gram.factor)
-kilocalorie_per_kilogram_celsuis = Unit('kcal/(kg*C)', factor=kilocalorie.factor / kilogram.factor)
+kilocalorie_per_kilogram_celsius = Unit('kcal/(kg*C)', factor=kilocalorie.factor / kilogram.factor)
 kilocalorie_per_kilogram_kelvin = Unit('kcal/(kg*K)', factor=kilocalorie.factor / kilogram.factor)
-calorie_per_gram_celsuis = Unit('cal/(g*C)', factor=calorie.factor / gram.factor)
+calorie_per_gram_celsius = Unit('cal/(g*C)', factor=calorie.factor / gram.factor)
 calorie_per_gram_kelvin = Unit('cal/(g*K)', factor=calorie.factor / gram.factor)
-calorie_per_kilogram_celsuis = Unit('cal/(kg*C)', factor=calorie.factor / kilogram.factor)
+calorie_per_kilogram_celsius = Unit('cal/(kg*C)', factor=calorie.factor / kilogram.factor)
 calorie_per_kilogram_kelvin = Unit('cal/(kg*K)', factor=calorie.factor / kilogram.factor)
 
 # mass density, kg/m3
