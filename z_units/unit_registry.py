@@ -288,8 +288,8 @@ molar_entropy = molar_heat_capacity
 thermal_conductivity = UnitRegistry([
     u.watt_per_meter_kelvin,
     u.Btu_per_hour_foot_fahrenheit,
-    u.kilocalorie_per_meter_hour_celsuis,
-    u.calorie_per_centimeter_second_celsuis
+    u.kilocalorie_per_meter_hour_celsius,
+    u.calorie_per_centimeter_second_celsius
 ])
 
 viscosity = UnitRegistry([
@@ -310,21 +310,21 @@ surface_tension = UnitRegistry([
 ])
 
 mass_heat_capacity = UnitRegistry([
-    u.kilojoule_per_gram_celsuis,
+    u.kilojoule_per_gram_celsius,
     u.kilojoule_per_gram_kelvin,
-    u.kilojoule_per_kilogram_celsuis,
+    u.kilojoule_per_kilogram_celsius,
     u.kilojoule_per_kilogram_kelvin,
-    u.joule_per_gram_celsuis,
+    u.joule_per_gram_celsius,
     u.joule_per_gram_kelvin,
-    u.joule_per_kilogram_celsuis,
+    u.joule_per_kilogram_celsius,
     u.joule_per_kilogram_kelvin,
-    u.kilocalorie_per_gram_celsuis,
+    u.kilocalorie_per_gram_celsius,
     u.kilocalorie_per_gram_kelvin,
-    u.kilocalorie_per_kilogram_celsuis,
+    u.kilocalorie_per_kilogram_celsius,
     u.kilocalorie_per_kilogram_kelvin,
-    u.calorie_per_gram_celsuis,
+    u.calorie_per_gram_celsius,
     u.calorie_per_gram_kelvin,
-    u.calorie_per_kilogram_celsuis,
+    u.calorie_per_kilogram_celsius,
     u.calorie_per_kilogram_kelvin
 ])
 
