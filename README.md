@@ -5,8 +5,7 @@ A simple unit converter for chemical engineering
 ## Usage
 
 ```python
-import z_units.quantity as q
-
+from z_units import quantity as q
 # take a quantity
 f = q.MolarFlow(3)
 # to base unit
