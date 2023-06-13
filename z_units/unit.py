@@ -1,3 +1,4 @@
+import numbers
 import re
 from typing import Union, Callable
 
@@ -132,10 +133,15 @@ class Unit:
         return self._offset
 
     def __repr__(self):
-        return f"<Unit('{self.symbol}')>"
+        return f"<Unit('{self}')>"
 
-    def __str__(self):
-        return self.symbol
+    def __format__(self, format_spec=''):
+        if format_spec.startswith('h'):
+            return self.symbol_short
+        if format_spec.startswith('d'):
+            return self.symbol_defined
+
+        return self.symbol_short
 
 
 class BaseUnit(Unit):
