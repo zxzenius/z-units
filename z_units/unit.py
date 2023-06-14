@@ -7,40 +7,6 @@ from .util import multi_replace
 from . import constant
 
 
-def format_symbol_short(symbol: str) -> str:
-    """
-    Convert defined unit symbol to simple style
-
-    Examples:
-        m ** 2 -> m2
-        m * s -> m-s
-        kJ / (C * kg) -> kJ/C-kg
-    :param symbol:
-    :return:
-    """
-    if symbol:
-        return multi_replace(symbol, {
-            '**': '',
-            '*': '-',
-            '(': '',
-            ')': '',
-        })
-
-    return symbol
-
-
-def format_symbol_defined(symbol: str) -> str:
-    """
-    Format defined unit symbol, operator separated by space
-    :param symbol:
-    :return:
-    """
-    if symbol:
-        return re.sub(r'(\*{2}|\*|/)', r' \g<0> ', symbol)
-
-    return symbol
-
-
 class Unit:
     """
     Class used to represent a Unit.
@@ -51,7 +17,7 @@ class Unit:
     Creation: unit = Unit(name[, factor, offset])
 
     name: str
-        the simple style name(symbol) of the unit,
+        the quick style name(symbol) of the unit,
         example: 'kg/s', 'm3/s', 'kJ/mol-C'
 
         Simple form used to represent definition, as:
@@ -72,7 +38,7 @@ class Unit:
     Property
     ----------
     symbol: str
-        the simple style name(symbol) of the unit.
+        the quick style name(symbol) of the unit.
 
     factor: float
         factor value
@@ -103,20 +69,49 @@ class Unit:
         return (value - self.offset) / self.factor
 
     @property
-    def symbol_short(self):
+    def quick_style(self):
         """
-        Used for indexing
-        :return:
+        The default style, used for indexing
+
+        Quick Style Convention:
+
+        * No space separator
+        * Power:    x ** y -> xy
+        * Multiply: x * y  -> x-y
+        * Parentheses will be omitted:  x / (y * z) -> x/y-z
+
+        Examples:
+
+            m ** 2 -> m2
+            m * s -> m-s
+            kJ / (C * kg) -> kJ/C-kg
+
+        :return: quick style symbol in str
         """
-        return format_symbol_short(self._symbol)
+        if self._symbol:
+            return multi_replace(self._symbol, {
+                '**': '',
+                '*': '-',
+                '(': '',
+                ')': '',
+            })
+
+        return self._symbol
 
     @property
-    def symbol_defined(self):
-        return format_symbol_defined(self._symbol)
+    def defined_style(self):
+        """
+        Defined Style shows formula
+        :return: defined style symbol in str
+        """
+        if self._symbol:
+            return re.sub(r'(\*{2}|\*|/)', r' \g<0> ', self._symbol)
+
+        return self._symbol
 
     @property
     def symbol(self):
-        return self.symbol_short
+        return self.quick_style
 
     @property
     def factor(self):
@@ -136,12 +131,12 @@ class Unit:
         return f"<Unit('{self}')>"
 
     def __format__(self, format_spec=''):
-        if format_spec.startswith('h'):
-            return self.symbol_short
+        if format_spec.startswith('q'):
+            return self.quick_style
         if format_spec.startswith('d'):
-            return self.symbol_defined
+            return self.defined_style
 
-        return self.symbol_short
+        return self.symbol
 
 
 class BaseUnit(Unit):
