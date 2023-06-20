@@ -6,7 +6,7 @@ _config = {
 }
 
 
-def set_standard_temperature(temperature: float):
+def set_standard_temperature(temperature):
     """
     Set standard temperature for standard volume rate conversion,
     default value is 20 degC
@@ -19,11 +19,11 @@ def set_standard_temperature(temperature: float):
         raise ValueError(f"{temperature} is not a number.")
 
 
-def get_standard_temperature() -> float:
+def get_standard_temperature():
     return _config['standard_temperature']
 
 
-def set_local_atmospheric_pressure(pressure: float):
+def set_local_atmospheric_pressure(pressure):
     """
     Set local atmospheric pressure for gauge pressure conversion,
     default value is 101.325 kPa
@@ -37,5 +37,5 @@ def set_local_atmospheric_pressure(pressure: float):
     _config['local_atmospheric_pressure'] = value
 
 
-def get_local_atmospheric_pressure() -> float:
+def get_local_atmospheric_pressure():
     return _config['local_atmospheric_pressure']
