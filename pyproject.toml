@@ -11,6 +11,9 @@ requires-python = ">=3.7"
 readme = "README.md"
 license = {text = "MIT"}
 
+[project.urls]
+"Homepage" = "https://github.com/zxzenius/z-units"
+
 [build-system]
 requires = ["pdm-backend"]
 build-backend = "pdm.backend"
