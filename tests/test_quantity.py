@@ -8,6 +8,9 @@ def test_length():
     x = q.Length(1)
     assert x.unit.symbol == 'm'
     assert x.unit == x.base_unit
+    assert f'{x:U}' == '1 m'
+    assert f'{x:Uq}' == '1 m'
+    assert f'{x:Up}' == '1 m'
     assert isclose(x.to('km').value, 1e-3, rel_tol=1e-4)
     assert isclose(x.to('dm').value, 1e1, rel_tol=1e-4)
     assert isclose(x.to('cm').value, 1e2, rel_tol=1e-4)
@@ -20,6 +23,8 @@ def test_length():
 def test_area():
     x = q.Area(1)
     assert x.unit.symbol == 'm2'
+    assert f'{x:U}' == '1 m2'
+    assert f'{x:Up}' == '1 m**2'
     assert x.unit == x.base_unit
     assert isclose(x.to('km2').value, 1e-6, rel_tol=1e-4)
     assert isclose(x.to('dm2').value, 1e2, rel_tol=1e-4)
@@ -146,7 +151,7 @@ def test_delta_temperature():
 
 
 def test_pressure():
-    x = q.Pressure(100)
+    x = q.Pressure(100, 'kPa')
     assert x.value == 100
     assert x.unit.symbol == 'kPa'
     assert isclose(x.to('Pa').value, 100e3)
@@ -172,7 +177,7 @@ def test_pressure():
     assert isclose(x.to('inHg_32F_g').value, -0.39127, rel_tol=1e-4)
     assert isclose(x.to('inHg_60F_g').value, -0.39237, rel_tol=1e-4)
     assert isclose(q.Pressure(1, 'MPag').to('psi').value, 159.73368651, rel_tol=1e-4)
-    set_local_atmospheric_pressure(50)
+    set_local_atmospheric_pressure(50e3)
     assert isclose(x.to('kPag').value, 50)
 
 
