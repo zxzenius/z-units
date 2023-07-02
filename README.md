@@ -24,9 +24,9 @@ print(f.units)
 unit, value = f.unit, f.value
 # gauge pressure
 p = q.Pressure(5, 'bar').to('MPag')
-# change local atmospheric pressure (default: 101.325 kPa)
+# change local atmospheric pressure (default: 101325 Pa)
 from z_units import config
-config.set_local_atmospheric_pressure(50)
+config.set_local_atmospheric_pressure(50e3)
 q.Pressure(100, 'kPa').to('kPag')
 # change standard temperature (default: 20 degC)
 # affect standard cubic meter "Sm**3"
