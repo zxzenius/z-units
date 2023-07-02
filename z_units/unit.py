@@ -31,11 +31,13 @@ class Unit:
     If unit conversion is nonlinear, to_base_unit() & from_base_unit()
     have to be overridden.
 
-    Example: kilometer = Unit('km', factor=1e3)
+    Example
+    -------
+    >>> kilometer = Unit('km', factor=1e3)
 
     Which meter is base unit
 
-    Property
+    Properties
     ----------
     symbol: str
         the quick style name(symbol) of the unit.
@@ -47,7 +49,13 @@ class Unit:
         offset value
     """
 
-    def __init__(self, symbol: str, factor: Union[float, Callable] = 1, offset: Union[float, Callable] = 0):
+    def __init__(self, symbol: str, defined_by=None, factor: Union[float, Callable] = 1, offset: Union[float, Callable] = 0):
+        if isinstance(defined_by, Unit):
+            factor = defined_by.factor
+
+        if factor == 0:
+            raise ValueError("Factor shall not be 0")
+
         self._symbol = symbol.replace(' ', '')
         self._factor = factor
         self._offset = offset
@@ -69,9 +77,9 @@ class Unit:
         return (value - self.offset) / self.factor
 
     @property
-    def quick_style(self):
+    def symbol_quick_style(self):
         """
-        The default style, used for indexing
+        The default style, quick & easy to typing
 
         Quick Style Convention:
 
@@ -99,19 +107,16 @@ class Unit:
         return self._symbol
 
     @property
-    def defined_style(self):
+    def symbol_python_style(self):
         """
         Defined Style shows formula
         :return: defined style symbol in str
         """
-        if self._symbol:
-            return re.sub(r'(\*{2}|\*|/)', r' \g<0> ', self._symbol)
-
         return self._symbol
 
     @property
     def symbol(self):
-        return self.quick_style
+        return self.symbol_quick_style
 
     @property
     def factor(self):
@@ -130,13 +135,55 @@ class Unit:
     def __repr__(self):
         return f"<Unit('{self}')>"
 
-    def __format__(self, format_spec=''):
-        if format_spec.startswith('q'):
-            return self.quick_style
-        if format_spec.startswith('d'):
-            return self.defined_style
-
+    def __str__(self):
         return self.symbol
+
+    def __format__(self, format_spec=''):
+        if format_spec == '':
+            return self.symbol
+        if format_spec == 'q':
+            return self.symbol_quick_style
+        if format_spec == 'p':
+            return self.symbol_python_style
+
+        raise ValueError('Invalid format specifier')
+
+    def __mul__(self, other):
+        # only for factor definition
+        if isinstance(other, Unit):
+            factor = self.factor * other.factor
+            return Unit('dummy', factor=factor)
+
+        return NotImplemented
+
+    def __rmul__(self, other):
+        factor = other * self.factor
+        return Unit('dummy', factor=factor)
+
+    def __truediv__(self, other):
+        if isinstance(other, Unit):
+            factor = self.factor / other.factor
+            return Unit('dummy', factor=factor)
+
+        if isinstance(other, (int, float)):
+            factor = self.factor / other
+            return Unit('dummy', factor=factor)
+
+        return NotImplemented
+
+    def __rtruediv__(self, other):
+        if isinstance(other, (int, float)):
+            factor = other / self.factor
+            return Unit('dummy', factor=factor)
+
+        return NotImplemented
+
+    def __pow__(self, power, modulo=None):
+        if isinstance(power, (int, float)):
+            factor = self.factor ** power
+            return Unit('dummy', factor=factor)
+
+        return NotImplemented
 
 
 class BaseUnit(Unit):
@@ -155,55 +202,54 @@ class BaseUnit(Unit):
 # basic unit
 # length, m
 meter = BaseUnit('m')
-kilometer = Unit('km', factor=1e3)
-decimeter = Unit('dm', factor=1e-1)
-centimeter = Unit('cm', factor=1e-2)
-millimeter = Unit('mm', factor=1e-3)
-micrometer = Unit('um', factor=1e-6)
+kilometer = Unit('km', defined_by=1e3 * meter)
+decimeter = Unit('dm', defined_by=1e-1 * meter)
+centimeter = Unit('cm', defined_by=1e-2 * meter)
+millimeter = Unit('mm', defined_by=1e-3 * meter)
+micrometer = Unit('um', defined_by=1e-6 * meter)
 foot = Unit('ft', factor=3.048e-1)
 inch = Unit('in', factor=2.54e-2)
 
 # area, m2
 square_meter = BaseUnit('m**2')
-square_kilometer = Unit('km**2', factor=kilometer.factor ** 2)
-square_decimeter = Unit('dm**2', factor=decimeter.factor ** 2)
-square_centimeter = Unit('cm**2', factor=centimeter.factor ** 2)
-square_millimeter = Unit('mm**2', factor=millimeter.factor ** 2)
-square_micrometer = Unit('um**2', factor=micrometer.factor ** 2)
-square_foot = Unit('ft**2', factor=foot.factor ** 2)
-square_inch = Unit('in**2', factor=inch.factor ** 2)
+square_kilometer = Unit('km**2', defined_by=kilometer**2)
+square_decimeter = Unit('dm**2', defined_by=decimeter**2)
+square_centimeter = Unit('cm**2', defined_by=centimeter**2)
+square_millimeter = Unit('mm**2', defined_by=millimeter**2)
+square_micrometer = Unit('um**2', defined_by=micrometer**2)
+square_foot = Unit('ft**2', defined_by=foot**2)
+square_inch = Unit('in**2', defined_by=inch**2)
 
 # volume, m3
 cubic_meter = BaseUnit('m**3')
-cubic_centimeter = Unit('cm**3', factor=centimeter.factor ** 3)
-cubic_millimeter = Unit('mm**3', factor=millimeter.factor ** 3)
-liter = Unit('L', factor=decimeter.factor ** 3)
-milliliter = Unit('mL', factor=centimeter.factor ** 3)
-cubic_foot = Unit('ft**3', factor=foot.factor ** 3)
-cubic_inch = Unit('in**3', factor=inch.factor ** 3)
+cubic_centimeter = Unit('cm**3', defined_by=centimeter**3)
+cubic_millimeter = Unit('mm**3', defined_by=millimeter**3)
+liter = Unit('L', defined_by=decimeter**3)
+milliliter = Unit('mL', defined_by=centimeter**3)
+cubic_foot = Unit('ft**3', defined_by=foot**3)
+cubic_inch = Unit('in**3', defined_by=inch**3)
 # US_gallon
-gallon = Unit('gal', factor=231 * cubic_inch.factor)
-barrel = Unit('bbl', factor=42 * gallon.factor)
+gallon = Unit('gal', defined_by=231 * cubic_inch)
+barrel = Unit('bbl', defined_by=42 * gallon)
 
 # time, s
 second = BaseUnit('s')
-minute = Unit('min', factor=60)
-hour = Unit('hr', factor=60 * minute.factor)
-day = Unit('day', factor=24 * hour.factor)
-week = Unit('week', factor=7 * day.factor)
-# year = Unit('yr', factor=365.25 * day.factor)
-year = Unit('yr', factor=8760 * hour.factor)
-month = Unit('mon', factor=year.factor / 12)
+minute = Unit('min', defined_by=60 * second)
+hour = Unit('hr', defined_by=60 * minute)
+day = Unit('day', defined_by=24 * hour)
+week = Unit('week', defined_by=7 * day)
+year = Unit('yr', defined_by=365 * day)
+month = Unit('mon', defined_by=year / 12)
 
 # velocity, m/s
 meter_per_second = BaseUnit('m/s')
-meter_per_minute = Unit('m/min', factor=1 / minute.factor)
-meter_per_hour = Unit('m/hr', factor=1 / hour.factor)
-kilometer_per_hour = Unit('km/hr', factor=kilometer.factor / hour.factor)
-centimeter_per_second = Unit('cm/s', factor=centimeter.factor / second.factor)
-foot_per_second = Unit('ft/s', factor=foot.factor / second.factor)
-foot_per_minute = Unit('ft/min', factor=foot.factor / minute.factor)
-foot_per_hour = Unit('ft/hr', factor=foot.factor / hour.factor)
+meter_per_minute = Unit('m/min', defined_by=meter / minute)
+meter_per_hour = Unit('m/hr', defined_by=meter / hour)
+kilometer_per_hour = Unit('km/hr', defined_by=kilometer / hour)
+centimeter_per_second = Unit('cm/s', defined_by=centimeter / second)
+foot_per_second = Unit('ft/s', defined_by=foot / second)
+foot_per_minute = Unit('ft/min', defined_by=foot / minute)
+foot_per_hour = Unit('ft/hr', defined_by=foot / hour)
 
 # temperature base unit
 celsius = BaseUnit('C')
@@ -213,22 +259,22 @@ fahrenheit = Unit('F', factor=5 / 9, offset=-32 * 5 / 9)
 
 # mass, kg
 kilogram = BaseUnit('kg')
-gram = Unit('g', factor=1e-3)
-tonne = Unit('t', factor=1e3)
-pound = Unit('lb', factor=0.45359237)
+gram = Unit('g', defined_by=1e-3 * kilogram)
+tonne = Unit('t', defined_by=1e3 * kilogram)
+pound = Unit('lb', defined_by=0.45359237 * kilogram)
 
 # force, N
 newton = BaseUnit('N')
-kilogram_meter_per_second_squared = Unit('kg*m/s**2', factor=1)
-kilo_newton = Unit('kN', factor=1e3)
-dyne = Unit('dyn', factor=1e-5)
-kilogram_force = Unit('kgf', factor=constant.G)
-tonne_force = Unit('tonf', factor=tonne.factor * constant.G)
-pound_force = Unit('lbf', factor=pound.factor * constant.G)
+kilogram_meter_per_second_squared = Unit('kg*m/s**2', defined_by=newton)
+kilo_newton = Unit('kN', defined_by=1e3 * newton)
+dyne = Unit('dyn', defined_by=1e-5 * newton)
+kilogram_force = Unit('kgf', defined_by=constant.G * kilogram)
+tonne_force = Unit('tonf', defined_by=constant.G * tonne)
+pound_force = Unit('lbf', defined_by=constant.G * pound)
 
 # substance, kmol
 kilomole = BaseUnit('kmol')
-mole = Unit('mol', factor=1e-3)
+mole = Unit('mol', defined_by=1e-3 * kilomole)
 normal_cubic_meter = Unit('Nm**3', factor=1 / 22.414)
 # @20 degC
 standard_cubic_meter = Unit('Sm**3',
@@ -237,24 +283,24 @@ standard_cubic_meter = Unit('Sm**3',
 T_60F_inK = kelvin.from_base_unit(fahrenheit.to_base_unit(60))
 T_0C_inK = kelvin.from_base_unit(0)
 standard_cubic_foot = Unit('SCF', factor=normal_cubic_meter.factor * cubic_foot.factor * T_0C_inK / T_60F_inK)
-kilo_standard_cubic_foot = Unit('MSCF', factor=1e3 * standard_cubic_foot.factor)
-million_standard_cubic_foot = Unit('MMSCF', factor=1e6 * standard_cubic_foot.factor)
+kilo_standard_cubic_foot = Unit('MSCF', defined_by=1e3 * standard_cubic_foot)
+million_standard_cubic_foot = Unit('MMSCF', defined_by=1e6 * standard_cubic_foot)
 
 # energy, kJ
 kilojoule = BaseUnit('kJ')
-joule = Unit('J', factor=1e-3)
-megajoule = Unit('MJ', factor=1e3)
-gigajoule = Unit('GJ', factor=1e6)
-kilowatt_hour = Unit('kW*h', factor=hour.factor)
-kilowatt_year = Unit('kW*yr', factor=year.factor)
+joule = Unit('J', defined_by=1e-3 * kilojoule)
+megajoule = Unit('MJ', defined_by=1e6 * joule)
+gigajoule = Unit('GJ', defined_by=1e9 * joule)
+kilowatt_hour = Unit('kW*h', defined_by=kilojoule * hour)
+kilowatt_year = Unit('kW*yr', defined_by=kilojoule * year)
 calorie = Unit('cal', factor=4.184e-3)
-kilocalorie = Unit('kcal', factor=1e3 * calorie.factor)
-megacalorie = Unit('Mcal', factor=1e6 * calorie.factor)
-gigacalorie = Unit('Gcal', factor=1e9 * calorie.factor)
-million_kilocalorie = Unit('MMkcal', factor=1e6 * kilocalorie.factor)
+kilocalorie = Unit('kcal', defined_by=1e3 * calorie)
+megacalorie = Unit('Mcal', defined_by=1e6 * calorie)
+gigacalorie = Unit('Gcal', defined_by=1e9 * calorie)
+million_kilocalorie = Unit('MMkcal', defined_by=1e6 * kilocalorie)
 british_thermal_unit = Unit('Btu', factor=1.055056)
-million_british_thermal_unit = Unit('MMBtu', factor=1e6 * british_thermal_unit.factor)
-pound_force_foot = Unit('lbf*ft', factor=1e-3 * pound_force.factor * foot.factor)
+million_british_thermal_unit = Unit('MMBtu', defined_by=1e6 * british_thermal_unit)
+pound_force_foot = Unit('lbf*ft', defined_by=1e-3 * pound_force * foot)
 
 # delta temperature
 delta_celsius = BaseUnit('C')
@@ -263,21 +309,20 @@ delta_rankine = Unit('R', factor=5 / 9)
 delta_fahrenheit = Unit('F', factor=5 / 9)
 
 # pressure base unit
-kilopascal = BaseUnit('kPa')
-megapascal = Unit('MPa', factor=1e3)
-bar = Unit('bar', factor=1e2)
-millibar = Unit('mbar', factor=0.1)
-pascal = Unit('Pa', factor=1e-3)
+pascal = BaseUnit('Pa')
+kilopascal = Unit('kPa', defined_by=1e3 * pascal)
+megapascal = Unit('MPa', defined_by=1e6 * pascal)
+bar = Unit('bar', defined_by=1e5 * pascal)
+millibar = Unit('mbar', defined_by=1e-3 * bar)
 atm = Unit('atm', factor=constant.ATM)
-kg_force_per_square_centimeter = Unit('kgf/cm**2', factor=1e-3 * kilogram_force.factor / square_centimeter.factor)
-# psi = Unit('psi', factor=6.894757)
-psi = Unit('psi', factor=1e-3 * pound_force.factor / square_inch.factor)
-pound_force_per_square_foot = Unit('lbf/ft**2', factor=1e-3 * pound_force.factor / square_foot.factor)
-torr = Unit('torr', factor=101.325 / 760)
-mm_Hg = Unit('mmHg_0C', factor=torr.factor)
-inch_Hg = Unit('inHg_32F', factor=3.386389)
-inch_Hg_60F = Unit('inHg_60F', factor=3.37685)
-kilopascal_gauge = Unit('kPag', offset=get_local_atmospheric_pressure)
+kg_force_per_square_centimeter = Unit('kgf/cm**2', defined_by=kilogram_force / square_centimeter)
+psi = Unit('psi', defined_by=pound_force / square_inch)
+pound_force_per_square_foot = Unit('lbf/ft**2', defined_by=pound_force / square_foot)
+torr = Unit('torr', defined_by=atm / 760)
+mm_Hg = Unit('mmHg_0C', defined_by=torr)
+inch_Hg = Unit('inHg_32F', factor=1e3 * 3.386389)
+inch_Hg_60F = Unit('inHg_60F', factor=1e3 * 3.37685)
+kilopascal_gauge = Unit('kPag', factor=kilopascal.factor, offset=get_local_atmospheric_pressure)
 megapascal_gauge = Unit('MPag', factor=megapascal.factor, offset=get_local_atmospheric_pressure)
 bar_gauge = Unit('barg', factor=bar.factor, offset=get_local_atmospheric_pressure)
 millibar_gauge = Unit('mbarg', factor=millibar.factor, offset=get_local_atmospheric_pressure)
@@ -293,101 +338,101 @@ inch_Hg_60F_gauge = Unit('inHg_60F_g', factor=inch_Hg_60F.factor, offset=get_loc
 
 # molar flow, base: kmol/s
 kilomole_per_second = BaseUnit('kmol/s')
-kilomole_per_hour = Unit('kmol/h', factor=1 / hour.factor)
-kilomole_per_minute = Unit('kmol/min', factor=1 / minute.factor)
-normal_cubic_meter_per_hour = Unit('Nm**3/h', factor=normal_cubic_meter.factor / hour.factor)
-normal_cubic_meter_per_day = Unit('Nm**3/d', factor=normal_cubic_meter.factor / day.factor)
-standard_cubic_meter_per_hour = Unit('Sm**3/h', factor=standard_cubic_meter.factor / hour.factor)
-standard_cubic_meter_per_day = Unit('Sm**3/d', factor=standard_cubic_meter.factor / day.factor)
-mole_per_hour = Unit('mol/h', factor=mole.factor / hour.factor)
-mole_per_minute = Unit('mol/min', factor=mole.factor / minute.factor)
-mole_per_second = Unit('mol/s', factor=mole.factor)
-standard_cubic_foot_per_day = Unit('SCFD', factor=standard_cubic_foot.factor / day.factor)
-kilo_standard_cubic_foot_per_hour = Unit('MSCFH', factor=kilo_standard_cubic_foot.factor / hour.factor)
-kilo_standard_cubic_foot_per_day = Unit('MSCFD', factor=kilo_standard_cubic_foot.factor / day.factor)
-million_standard_cubic_foot_per_hour = Unit('MMSCFH', factor=million_standard_cubic_foot.factor / hour.factor)
-million_standard_cubic_foot_per_day = Unit('MMSCFD', factor=million_standard_cubic_foot.factor / day.factor)
+kilomole_per_hour = Unit('kmol/h', defined_by=kilomole / hour)
+kilomole_per_minute = Unit('kmol/min', defined_by=kilomole / minute)
+normal_cubic_meter_per_hour = Unit('Nm**3/h', defined_by=normal_cubic_meter / hour)
+normal_cubic_meter_per_day = Unit('Nm**3/d', defined_by=normal_cubic_meter / day)
+standard_cubic_meter_per_hour = Unit('Sm**3/h', defined_by=standard_cubic_meter / hour)
+standard_cubic_meter_per_day = Unit('Sm**3/d', defined_by=standard_cubic_meter / day)
+mole_per_hour = Unit('mol/h', defined_by=mole / hour)
+mole_per_minute = Unit('mol/min', defined_by=mole / minute)
+mole_per_second = Unit('mol/s', defined_by=mole)
+standard_cubic_foot_per_day = Unit('SCFD', defined_by=standard_cubic_foot / day)
+kilo_standard_cubic_foot_per_hour = Unit('MSCFH', defined_by=kilo_standard_cubic_foot / hour)
+kilo_standard_cubic_foot_per_day = Unit('MSCFD', defined_by=kilo_standard_cubic_foot / day)
+million_standard_cubic_foot_per_hour = Unit('MMSCFH', defined_by=million_standard_cubic_foot / hour)
+million_standard_cubic_foot_per_day = Unit('MMSCFD', defined_by=million_standard_cubic_foot / day)
 
 # mass flow, base: kg/s
 kilogram_per_second = BaseUnit('kg/s')
-kilogram_per_hour = Unit('kg/h', factor=1 / hour.factor)
-kilogram_per_minute = Unit('kg/min', factor=1 / minute.factor)
-kilogram_per_day = Unit('kg/d', factor=1 / day.factor)
-tonne_per_day = Unit('t/d', factor=tonne.factor / day.factor)
-tonne_per_hour = Unit('t/h', factor=tonne.factor / hour.factor)
-tonne_per_year = Unit('t/yr', factor=tonne.factor / year.factor)
-gram_per_hour = Unit('g/h', factor=gram.factor / hour.factor)
-gram_per_minute = Unit('g/min', factor=gram.factor / minute.factor)
-gram_per_second = Unit('g/s', factor=gram.factor)
-pound_per_hour = Unit('lb/h', factor=pound.factor / hour.factor)
-kilo_pound_per_hour = Unit('klb/h', factor=1e3 * pound.factor / hour.factor)
-pound_per_day = Unit('lb/d', factor=pound.factor / day.factor)
-kilo_pound_per_day = Unit('klb/d', factor=1e3 * pound.factor / day.factor)
-million_pound_per_day = Unit('MMlb/d', factor=1e6 * pound.factor / day.factor)
+kilogram_per_hour = Unit('kg/h', defined_by=kilogram / hour)
+kilogram_per_minute = Unit('kg/min', defined_by=kilogram / minute)
+kilogram_per_day = Unit('kg/d', defined_by=kilogram / day)
+tonne_per_day = Unit('t/d', defined_by=tonne / day)
+tonne_per_hour = Unit('t/h', defined_by=tonne / hour)
+tonne_per_year = Unit('t/yr', defined_by=tonne / year)
+gram_per_hour = Unit('g/h', defined_by=gram / hour)
+gram_per_minute = Unit('g/min', defined_by=gram / minute)
+gram_per_second = Unit('g/s', defined_by=gram / second)
+pound_per_hour = Unit('lb/h', defined_by=pound / hour)
+kilo_pound_per_hour = Unit('klb/h', defined_by=1e3 * pound / hour)
+pound_per_day = Unit('lb/d', defined_by=pound / day)
+kilo_pound_per_day = Unit('klb/d', defined_by=1e3 * pound / day)
+million_pound_per_day = Unit('MMlb/d', defined_by=1e6 * pound / day)
 
 # volume flow, base: m3/s
 cubic_meter_per_second = BaseUnit('m**3/s')
-cubic_meter_per_hour = Unit('m**3/h', factor=1 / hour.factor)
-cubic_meter_per_minute = Unit('m**3/min', factor=1 / minute.factor)
-cubic_meter_per_day = Unit('m**3/d', factor=1 / day.factor)
-liter_per_hour = Unit('L/h', factor=liter.factor / hour.factor)
-liter_per_day = Unit('L/d', factor=liter.factor / day.factor)
-liter_per_minute = Unit('L/min', factor=liter.factor / minute.factor)
-liter_per_second = Unit('L/s', factor=liter.factor)
-milliliter_per_hour = Unit('mL/h', factor=milliliter.factor / hour.factor)
-milliliter_per_minute = Unit('mL/min', factor=milliliter.factor / minute.factor)
-milliliter_per_second = Unit('mL/s', factor=milliliter.factor)
-barrel_per_day = Unit('bbl/d', factor=barrel.factor / day.factor)
-barrel_per_hour = Unit('bbl/h', factor=barrel.factor / hour.factor)
-million_gallon_per_day = Unit('MMgal/d', factor=1e6 * gallon.factor / day.factor)
-US_gallon_per_minute = Unit('USGPM', factor=gallon.factor / minute.factor)
-US_gallon_per_hour = Unit('USGPH', factor=gallon.factor / hour.factor)
-cubic_foot_per_hour = Unit('ft**3/h', factor=cubic_foot.factor / hour.factor)
-cubic_foot_per_day = Unit('ft**3/d', factor=cubic_foot.factor / day.factor)
+cubic_meter_per_hour = Unit('m**3/h', defined_by=cubic_meter / hour)
+cubic_meter_per_minute = Unit('m**3/min', defined_by=cubic_meter / minute)
+cubic_meter_per_day = Unit('m**3/d', defined_by=cubic_meter / day)
+liter_per_hour = Unit('L/h', defined_by=liter / hour)
+liter_per_day = Unit('L/d', defined_by=liter / day)
+liter_per_minute = Unit('L/min', defined_by=liter / minute)
+liter_per_second = Unit('L/s', defined_by=liter / second)
+milliliter_per_hour = Unit('mL/h', defined_by=milliliter / hour)
+milliliter_per_minute = Unit('mL/min', defined_by=milliliter / minute)
+milliliter_per_second = Unit('mL/s', defined_by=milliliter / second)
+barrel_per_day = Unit('bbl/d', defined_by=barrel / day)
+barrel_per_hour = Unit('bbl/h', defined_by=barrel / hour)
+million_gallon_per_day = Unit('MMgal/d', defined_by=1e6 * gallon / day)
+US_gallon_per_minute = Unit('USGPM', defined_by=gallon / minute)
+US_gallon_per_hour = Unit('USGPH', defined_by=gallon / hour)
+cubic_foot_per_hour = Unit('ft**3/h', defined_by=cubic_foot / hour)
+cubic_foot_per_day = Unit('ft**3/d', defined_by=cubic_foot / day)
 
 # Energy 'kJ/s'
 kilojoule_per_second = BaseUnit('kJ/s')
-kilojoule_per_hour = Unit('kJ/h', factor=1 / hour.factor)
-kilojoule_per_minute = Unit('kJ/min', factor=1 / minute.factor)
-megajoule_per_hour = Unit('MJ/h', factor=megajoule.factor / hour.factor)
-gigajoule_per_hour = Unit('GJ/h', factor=gigajoule.factor / hour.factor)
-kilowatt = Unit('kW', factor=1)
-megawatt = Unit('MW', factor=1e3)
-kilocalorie_per_hour = Unit('kcal/h', factor=kilocalorie.factor / hour.factor)
-kilocalorie_per_minute = Unit('kcal/min', factor=kilocalorie.factor / minute.factor)
-kilocalorie_per_second = Unit('kcal/s', factor=kilocalorie.factor)
-million_kilocalorie_per_hour = Unit('MMkcal/h', factor=million_kilocalorie.factor / hour.factor)
-calorie_per_hour = Unit('cal/h', factor=calorie.factor / hour.factor)
-calorie_per_minute = Unit('cal/min', factor=calorie.factor / minute.factor)
-calorie_per_second = Unit('cal/s', factor=calorie.factor / second.factor)
-Btu_per_hour = Unit('Btu/h', factor=british_thermal_unit.factor / hour.factor)
-million_Btu_per_hour = Unit('MMBtu/h', factor=million_british_thermal_unit.factor / hour.factor)
-million_Btu_per_day = Unit('MMBtu/d', factor=million_british_thermal_unit.factor / day.factor)
-horse_power = Unit('hp', factor=0.745699)
+kilojoule_per_hour = Unit('kJ/h', defined_by=kilojoule / hour)
+kilojoule_per_minute = Unit('kJ/min', defined_by=kilojoule / minute)
+megajoule_per_hour = Unit('MJ/h', defined_by=megajoule / hour)
+gigajoule_per_hour = Unit('GJ/h', defined_by=gigajoule / hour)
+kilowatt = Unit('kW', defined_by=kilojoule / second)
+megawatt = Unit('MW', defined_by=1e3 * kilowatt)
+kilocalorie_per_hour = Unit('kcal/h', defined_by=kilocalorie / hour)
+kilocalorie_per_minute = Unit('kcal/min', defined_by=kilocalorie / minute)
+kilocalorie_per_second = Unit('kcal/s', defined_by=kilocalorie / second)
+million_kilocalorie_per_hour = Unit('MMkcal/h', defined_by=million_kilocalorie / hour)
+calorie_per_hour = Unit('cal/h', defined_by=calorie / hour)
+calorie_per_minute = Unit('cal/min', defined_by=calorie / minute)
+calorie_per_second = Unit('cal/s', defined_by=calorie / second)
+Btu_per_hour = Unit('Btu/h', defined_by=british_thermal_unit / hour)
+million_Btu_per_hour = Unit('MMBtu/h', defined_by=million_british_thermal_unit / hour)
+million_Btu_per_day = Unit('MMBtu/d', defined_by=million_british_thermal_unit / day)
+horse_power = Unit('hp', defined_by=0.745699 * kilowatt)
 
 # molar density, 'kmol/m3
 kilomole_per_cubic_meter = BaseUnit('kmol/m**3')
-mole_per_liter = Unit('mol/L', factor=mole.factor / liter.factor)
-mole_per_cubic_centimeter = Unit('mol/cm**3', factor=mole.factor / cubic_centimeter.factor)
-mole_per_milliliter = Unit('mol/mL', factor=mole.factor / milliliter.factor)
+mole_per_liter = Unit('mol/L', defined_by=mole / liter)
+mole_per_cubic_centimeter = Unit('mol/cm**3', defined_by=mole / cubic_centimeter)
+mole_per_milliliter = Unit('mol/mL', defined_by=mole / milliliter)
 
 # heat capacity, entropy, 'kJ/kmol-C'
-kilojoule_per_mole_celsius = Unit('kJ/(mol*C)', factor=1 / mole.factor)
-kilojoule_per_mole_kelvin = Unit('kJ/(mol*K)', factor=1 / mole.factor)
+kilojoule_per_mole_celsius = Unit('kJ/(mol*C)', defined_by=kilojoule / (mole * delta_celsius))
+kilojoule_per_mole_kelvin = Unit('kJ/(mol*K)', defined_by=kilojoule / (mole * delta_kelvin))
 kilojoule_per_kilomole_celsius = BaseUnit('kJ/(kmol*C)')
-kilojoule_per_kilomole_kelvin = Unit('kJ/(kmol*K)', factor=1)
-joule_per_mole_celsius = Unit('J/(mol*C)', factor=1)
-joule_per_mole_kelvin = Unit('J/(mol*K)', factor=1)
-joule_per_kilomole_celsius = Unit('J/(kmol*C)', factor=joule.factor / kilomole.factor)
-joule_per_kilomole_kelvin = Unit('J/(kmol*K)', factor=joule.factor / kilomole.factor)
-kilocalorie_per_mole_celsius = Unit('kcal/(mol*C)', factor=kilocalorie.factor / mole.factor)
-kilocalorie_per_mole_kelvin = Unit('kcal/(mol*K)', factor=kilocalorie.factor / mole.factor)
-kilocalorie_per_kilomole_celsius = Unit('kcal/(kmol*C)', factor=kilocalorie.factor)
-kilocalorie_per_kilomole_kelvin = Unit('kcal/(kmol*K)', factor=kilocalorie.factor)
-calorie_per_mole_celsius = Unit('cal/(mol*C)', factor=calorie.factor / mole.factor)
-calorie_per_mole_kelvin = Unit('cal/(mol*K)', factor=calorie.factor / mole.factor)
-calorie_per_kilomole_celsius = Unit('cal/(kmol*C)', factor=calorie.factor / kilomole.factor)
-calorie_per_kilomole_kelvin = Unit('cal/(kmol*K)', factor=calorie.factor / kilomole.factor)
+kilojoule_per_kilomole_kelvin = Unit('kJ/(kmol*K)', defined_by=kilojoule / (kilomole * delta_kelvin))
+joule_per_mole_celsius = Unit('J/(mol*C)', defined_by=joule / (mole * delta_celsius))
+joule_per_mole_kelvin = Unit('J/(mol*K)', defined_by=joule / (mole * delta_kelvin))
+joule_per_kilomole_celsius = Unit('J/(kmol*C)', defined_by=joule / (kilomole * delta_celsius))
+joule_per_kilomole_kelvin = Unit('J/(kmol*K)', defined_by=joule / (kilomole * delta_kelvin))
+kilocalorie_per_mole_celsius = Unit('kcal/(mol*C)', defined_by=kilocalorie / (mole * delta_celsius))
+kilocalorie_per_mole_kelvin = Unit('kcal/(mol*K)', defined_by=kilocalorie / (mole * delta_kelvin))
+kilocalorie_per_kilomole_celsius = Unit('kcal/(kmol*C)', defined_by=kilocalorie / (kilomole * delta_celsius))
+kilocalorie_per_kilomole_kelvin = Unit('kcal/(kmol*K)', defined_by=kilocalorie / (kilomole * delta_kelvin))
+calorie_per_mole_celsius = Unit('cal/(mol*C)', defined_by=calorie / (mole * delta_celsius))
+calorie_per_mole_kelvin = Unit('cal/(mol*K)', defined_by=calorie / (mole * delta_kelvin))
+calorie_per_kilomole_celsius = Unit('cal/(kmol*C)', defined_by=calorie / (kilomole * delta_celsius))
+calorie_per_kilomole_kelvin = Unit('cal/(kmol*K)', defined_by=calorie / (kilomole * delta_kelvin))
 
 # thermal conductivity, W/m-K
 watt_per_meter_kelvin = BaseUnit('W/(m*K)')
@@ -412,58 +457,58 @@ dyn_per_centimeter = Unit('dyn/cm', factor=1)
 pound_force_per_foot = Unit('lbf/ft', factor=1e3 * pound_force.factor / foot.factor)
 
 # mass capacity, kJ/kg-C
-kilojoule_per_gram_celsius = Unit('kJ/(g*C)', factor=kilojoule.factor / gram.factor)
-kilojoule_per_gram_kelvin = Unit('kJ/(g*K)', factor=kilojoule.factor / gram.factor)
+kilojoule_per_gram_celsius = Unit('kJ/(g*C)', defined_by=kilojoule / (gram * delta_celsius))
+kilojoule_per_gram_kelvin = Unit('kJ/(g*K)', defined_by=kilojoule / (gram * delta_kelvin))
 kilojoule_per_kilogram_celsius = BaseUnit('kJ/(kg*C)')
-kilojoule_per_kilogram_kelvin = Unit('kJ/(kg*K)', factor=1)
-joule_per_gram_celsius = Unit('J/(g*C)', factor=1)
-joule_per_gram_kelvin = Unit('J/(g*K)', factor=1)
-joule_per_kilogram_celsius = Unit('J/(kg*C)', factor=joule.factor / kilogram.factor)
-joule_per_kilogram_kelvin = Unit('J/(kg*K)', factor=joule.factor / kilogram.factor)
-kilocalorie_per_gram_celsius = Unit('kcal/(g*C)', factor=kilocalorie.factor / gram.factor)
-kilocalorie_per_gram_kelvin = Unit('kcal/(g*K)', factor=kilocalorie.factor / gram.factor)
-kilocalorie_per_kilogram_celsius = Unit('kcal/(kg*C)', factor=kilocalorie.factor / kilogram.factor)
-kilocalorie_per_kilogram_kelvin = Unit('kcal/(kg*K)', factor=kilocalorie.factor / kilogram.factor)
-calorie_per_gram_celsius = Unit('cal/(g*C)', factor=calorie.factor / gram.factor)
-calorie_per_gram_kelvin = Unit('cal/(g*K)', factor=calorie.factor / gram.factor)
-calorie_per_kilogram_celsius = Unit('cal/(kg*C)', factor=calorie.factor / kilogram.factor)
-calorie_per_kilogram_kelvin = Unit('cal/(kg*K)', factor=calorie.factor / kilogram.factor)
+kilojoule_per_kilogram_kelvin = Unit('kJ/(kg*K)', defined_by=kilojoule / (kilogram * delta_kelvin))
+joule_per_gram_celsius = Unit('J/(g*C)', defined_by=joule / (gram * delta_celsius))
+joule_per_gram_kelvin = Unit('J/(g*K)', defined_by=joule / (gram * delta_kelvin))
+joule_per_kilogram_celsius = Unit('J/(kg*C)', defined_by=joule / (kilogram * delta_celsius))
+joule_per_kilogram_kelvin = Unit('J/(kg*K)', defined_by=joule / (kilogram * delta_kelvin))
+kilocalorie_per_gram_celsius = Unit('kcal/(g*C)', defined_by=kilocalorie / (gram * delta_celsius))
+kilocalorie_per_gram_kelvin = Unit('kcal/(g*K)', defined_by=kilocalorie / (gram * delta_kelvin))
+kilocalorie_per_kilogram_celsius = Unit('kcal/(kg*C)', defined_by=kilocalorie / (kilogram * delta_celsius))
+kilocalorie_per_kilogram_kelvin = Unit('kcal/(kg*K)', defined_by=kilocalorie / (kilogram * delta_kelvin))
+calorie_per_gram_celsius = Unit('cal/(g*C)', defined_by=calorie / (gram * delta_celsius))
+calorie_per_gram_kelvin = Unit('cal/(g*K)', defined_by=calorie / (gram * delta_kelvin))
+calorie_per_kilogram_celsius = Unit('cal/(kg*C)', defined_by=calorie / (kilogram * delta_celsius))
+calorie_per_kilogram_kelvin = Unit('cal/(kg*K)', defined_by=calorie / (kilogram * delta_kelvin))
 
 # mass density, kg/m3
 kilogram_per_cubic_meter = BaseUnit('kg/m**3')
-gram_per_liter = Unit('g/L', factor=gram.factor / liter.factor)
-gram_per_cubic_centimeter = Unit('g/cm**3', factor=gram.factor / cubic_centimeter.factor)
-gram_per_milliliter = Unit('g/mL', factor=gram.factor / milliliter.factor)
+gram_per_liter = Unit('g/L', defined_by=gram / liter)
+gram_per_cubic_centimeter = Unit('g/cm**3', defined_by=gram / cubic_centimeter)
+gram_per_milliliter = Unit('g/mL', defined_by=gram / milliliter)
 
 # molar_enthalpy
-kilojoule_per_mole = Unit('kJ/mol', factor=1e3)
+kilojoule_per_mole = Unit('kJ/mol', defined_by=kilojoule / mole)
 kilojoule_per_kilomole = BaseUnit('kJ/kmol')
-joule_per_mole = Unit('J/mol', factor=1)
-joule_per_kilomole = Unit('J/kmol', factor=1e-3)
-megajoule_per_kilomole = Unit('MJ/kmol', factor=1e3)
-kilocalorie_per_mole = Unit('kcal/mol', factor=kilocalorie.factor / mole.factor)
-kilocalorie_per_kilomole = Unit('kcal/kmol', factor=kilocalorie.factor)
-calorie_per_mole = Unit('cal/mol', factor=calorie.factor / mole.factor)
-calorie_per_kilomole = Unit('cal/kmol', factor=calorie.factor / kilomole.factor)
+joule_per_mole = Unit('J/mol', defined_by=joule / mole)
+joule_per_kilomole = Unit('J/kmol', defined_by=joule / kilomole)
+megajoule_per_kilomole = Unit('MJ/kmol', defined_by=megajoule / kilomole)
+kilocalorie_per_mole = Unit('kcal/mol', defined_by=kilocalorie / mole)
+kilocalorie_per_kilomole = Unit('kcal/kmol', defined_by=kilocalorie / kilomole)
+calorie_per_mole = Unit('cal/mol', defined_by=calorie / mole)
+calorie_per_kilomole = Unit('cal/kmol', defined_by=calorie / kilomole)
 
 # molar_volume
-cubic_meter_per_mole = Unit('m**3/mol', factor=1 / mole.factor)
+cubic_meter_per_mole = Unit('m**3/mol', defined_by=cubic_meter / mole)
 cubic_meter_per_kilomole = BaseUnit('m**3/kmol')
-liter_per_mole = Unit('L/mol', factor=liter.factor / mole.factor)
-cubic_centimeter_per_mole = Unit('cm**3/mol', factor=cubic_centimeter.factor / mole.factor)
-milliliter_per_mole = Unit('mL/mol', factor=milliliter.factor / mole.factor)
+liter_per_mole = Unit('L/mol', defined_by=liter / mole)
+cubic_centimeter_per_mole = Unit('cm**3/mol', defined_by=cubic_centimeter / mole)
+milliliter_per_mole = Unit('mL/mol', defined_by=milliliter / mole)
 
 # mass_heat
-kilojoule_per_gram = Unit('kJ/g', factor=1e3)
+kilojoule_per_gram = Unit('kJ/g', defined_by=kilojoule / gram)
 kilojoule_per_kilogram = BaseUnit('kJ/kg')
-joule_per_gram = Unit('J/g', factor=1)
-joule_per_kilogram = Unit('J/kg', factor=1e-3)
-megajoule_per_kilogram = Unit('MJ/kg', factor=1e3)
-kilocalorie_per_gram = Unit('kcal/g', factor=kilocalorie.factor / gram.factor)
-kilocalorie_per_kilogram = Unit('kcal/kg', factor=kilocalorie.factor)
-calorie_per_gram = Unit('cal/g', factor=calorie.factor / gram.factor)
-calorie_per_kilogram = Unit('cal/kg', factor=calorie.factor)
-Btu_per_pound = Unit('Btu/lb', factor=british_thermal_unit.factor / pound.factor)
+joule_per_gram = Unit('J/g', defined_by=joule / gram)
+joule_per_kilogram = Unit('J/kg', defined_by=joule / kilogram)
+megajoule_per_kilogram = Unit('MJ/kg', defined_by=megajoule / kilogram)
+kilocalorie_per_gram = Unit('kcal/g', defined_by=kilocalorie / gram)
+kilocalorie_per_kilogram = Unit('kcal/kg', defined_by=kilocalorie / kilogram)
+calorie_per_gram = Unit('cal/g', defined_by=calorie / gram)
+calorie_per_kilogram = Unit('cal/kg', defined_by=calorie / kilogram)
+Btu_per_pound = Unit('Btu/lb', defined_by=british_thermal_unit / pound)
 
 # fraction
 dimensionless = BaseUnit('')

@@ -26,8 +26,8 @@ def get_standard_temperature():
 def set_local_atmospheric_pressure(pressure):
     """
     Set local atmospheric pressure for gauge pressure conversion,
-    default value is 101.325 kPa
-    :param pressure: number in 'kPa'
+    default value is 101325 Pa
+    :param pressure: number in 'Pa'
     :return:
     """
     if isinstance(pressure, (int, float)):

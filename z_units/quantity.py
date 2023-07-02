@@ -52,6 +52,15 @@ class Quantity:
     def __str__(self):
         return f'{self.value}'
 
+    def __format__(self, format_spec=''):
+        if (pos := format_spec.find('U')) > -1:
+            unit = format(self.unit, format_spec[pos + 1:])
+            format_spec = format_spec[0:pos]
+            if unit:
+                return ' '.join([format(self.value, format_spec), unit])
+
+        return format(self.value, format_spec)
+
     @property
     def unit(self) -> Unit:
         return self._unit
