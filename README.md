@@ -2,7 +2,11 @@
 
 A simple unit converter for chemical engineering
 
-## install
+## Feature
+
+* Support gauge pressure (MPag, kPag, psig, ...)
+
+## Install
 
 ```shell
 pip install z-units
