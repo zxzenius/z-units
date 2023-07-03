@@ -1,5 +1,3 @@
-import numbers
-import re
 from typing import Union, Callable
 
 from .config import get_local_atmospheric_pressure, get_standard_temperature
@@ -49,7 +47,8 @@ class Unit:
         offset value
     """
 
-    def __init__(self, symbol: str, defined_by=None, factor: Union[float, Callable] = 1, offset: Union[float, Callable] = 0):
+    def __init__(self, symbol: str, defined_by=None, factor: Union[float, Callable] = 1,
+                 offset: Union[float, Callable] = 0):
         if isinstance(defined_by, Unit):
             factor = defined_by.factor
 
@@ -152,6 +151,11 @@ class Unit:
         # only for factor definition
         if isinstance(other, Unit):
             factor = self.factor * other.factor
+            symbol = f"{self.symbol_python_style}*{other.symbol_python_style}"
+            return Unit(symbol, factor=factor)
+
+        if isinstance(other, (int, float)):
+            factor = self.factor * other
             return Unit('dummy', factor=factor)
 
         return NotImplemented
@@ -162,8 +166,9 @@ class Unit:
 
     def __truediv__(self, other):
         if isinstance(other, Unit):
+            symbol = f"{self.symbol_python_style}/{other.symbol_python_style}"
             factor = self.factor / other.factor
-            return Unit('dummy', factor=factor)
+            return Unit(symbol, factor=factor)
 
         if isinstance(other, (int, float)):
             factor = self.factor / other
@@ -180,8 +185,9 @@ class Unit:
 
     def __pow__(self, power, modulo=None):
         if isinstance(power, (int, float)):
+            symbol = f"{self.symbol_python_style}**{power}"
             factor = self.factor ** power
-            return Unit('dummy', factor=factor)
+            return Unit(symbol, factor=factor)
 
         return NotImplemented
 
@@ -280,9 +286,9 @@ normal_cubic_meter = Unit('Nm**3', factor=1 / 22.414)
 standard_cubic_meter = Unit('Sm**3',
                             factor=lambda: normal_cubic_meter.factor * 273.15 / (273.15 + get_standard_temperature()))
 # scf is @60 degF, so some math need to be done
-T_60F_inK = kelvin.from_base_unit(fahrenheit.to_base_unit(60))
-T_0C_inK = kelvin.from_base_unit(0)
-standard_cubic_foot = Unit('SCF', factor=normal_cubic_meter.factor * cubic_foot.factor * T_0C_inK / T_60F_inK)
+T_60F = kelvin.from_base_unit(fahrenheit.to_base_unit(60))
+T_0C = kelvin.from_base_unit(0)
+standard_cubic_foot = Unit('SCF', defined_by=normal_cubic_meter * cubic_foot * T_0C / T_60F)
 kilo_standard_cubic_foot = Unit('MSCF', defined_by=1e3 * standard_cubic_foot)
 million_standard_cubic_foot = Unit('MMSCF', defined_by=1e6 * standard_cubic_foot)
 
@@ -436,25 +442,25 @@ calorie_per_kilomole_kelvin = Unit('cal/(kmol*K)', defined_by=calorie / (kilomol
 
 # thermal conductivity, W/m-K
 watt_per_meter_kelvin = BaseUnit('W/(m*K)')
-Btu_per_hour_foot_fahrenheit = Unit('Btu/(h*ft*F)', factor=1e3 * british_thermal_unit.factor / (
-            hour.factor * foot.factor * delta_fahrenheit.factor))
-kilocalorie_per_meter_hour_celsius = Unit('kcal/(m*h*C)', factor=1e3 * kilocalorie.factor / hour.factor)
-calorie_per_centimeter_second_celsius = Unit('cal/(cm*s*C)', factor=1e3 * calorie.factor / centimeter.factor)
+Btu_per_hour_foot_fahrenheit = Unit('Btu/(h*ft*F)', defined_by=1e3 * british_thermal_unit / (
+        hour * foot * delta_fahrenheit))
+kilocalorie_per_meter_hour_celsius = Unit('kcal/(m*h*C)', defined_by=1e3 * kilocalorie / hour)
+calorie_per_centimeter_second_celsius = Unit('cal/(cm*s*C)', defined_by=1e3 * calorie / centimeter)
 
 # viscosity, cP
 centipoise = BaseUnit('cP')
 millipoise = Unit('mP', factor=0.1)
-micropoise = Unit('microP', factor=1e-3 * millipoise.factor)
+micropoise = Unit('microP', defined_by=1e-3 * millipoise)
 poise = Unit('P', factor=100)
 pascal_second = Unit('Pa-s', factor=1000)
-pound_force_second_per_square_foot = Unit('lbf*s/ft**2', factor=1e3 * pound_force.factor / square_foot.factor)
-pound_mass_per_foot_second = Unit('lbm/(ft*s)', factor=1e3 * pound.factor / foot.factor)
-pound_mass_per_foot_hour = Unit('lbm/(ft*h)', factor=1e3 * pound.factor / (foot.factor * hour.factor))
+pound_force_second_per_square_foot = Unit('lbf*s/ft**2', defined_by=1e3 * pound_force / square_foot)
+pound_mass_per_foot_second = Unit('lbm/(ft*s)', defined_by=1e3 * pound / foot)
+pound_mass_per_foot_hour = Unit('lbm/(ft*h)', defined_by=1e3 * pound / (foot * hour))
 
 # surface tension, dyne/cm
 dyne_per_centimeter = BaseUnit('dyne/cm')
 dyn_per_centimeter = Unit('dyn/cm', factor=1)
-pound_force_per_foot = Unit('lbf/ft', factor=1e3 * pound_force.factor / foot.factor)
+pound_force_per_foot = Unit('lbf/ft', defined_by=1e3 * pound_force / foot)
 
 # mass capacity, kJ/kg-C
 kilojoule_per_gram_celsius = Unit('kJ/(g*C)', defined_by=kilojoule / (gram * delta_celsius))
