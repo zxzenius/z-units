@@ -1,3 +1,4 @@
+from __future__ import annotations
 from typing import Union, Callable
 
 from .config import get_local_atmospheric_pressure, get_standard_temperature

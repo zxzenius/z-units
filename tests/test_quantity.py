@@ -8,9 +8,12 @@ def test_length():
     x = q.Length(1)
     assert x.unit.symbol == 'm'
     assert x.unit == x.base_unit
-    assert f'{x:U}' == '1 m'
-    assert f'{x:Uq}' == '1 m'
-    assert f'{x:Up}' == '1 m'
+    assert f'{x:u}' == '1 m'
+    assert f'{x:uq}' == '1 m'
+    assert f'{x:up}' == '1 m'
+    print(f"Length(1) * 5 = {x * 5:u}")
+    print(f"5 * Length(1) = {5 * x:u}")
+    print(f"5 * Length(1, 'ft') = {5 * q.Length(1, 'ft'):u}")
     assert isclose(x.to('km').value, 1e-3, rel_tol=1e-4)
     assert isclose(x.to('dm').value, 1e1, rel_tol=1e-4)
     assert isclose(x.to('cm').value, 1e2, rel_tol=1e-4)
@@ -23,8 +26,8 @@ def test_length():
 def test_area():
     x = q.Area(1)
     assert x.unit.symbol == 'm2'
-    assert f'{x:U}' == '1 m2'
-    assert f'{x:Up}' == '1 m**2'
+    assert f'{x:u}' == '1 m2'
+    assert f'{x:up}' == '1 m**2'
     assert x.unit == x.base_unit
     assert isclose(x.to('km2').value, 1e-6, rel_tol=1e-4)
     assert isclose(x.to('dm2').value, 1e2, rel_tol=1e-4)

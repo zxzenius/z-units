@@ -1,4 +1,5 @@
-from typing import List
+from __future__ import annotations
+from typing import List, Union
 
 from .unit import Unit
 from .unit_registry import UnitRegistry
@@ -12,19 +13,19 @@ class Quantity:
     A quantity has a value and a unit
     """
 
-    def __init__(self, value, unit_symbol: str = None):
+    def __init__(self, value, unit: Union[str, Unit] = None):
         self.value = value
-        if unit_symbol is None:
+        if unit is None:
             self._unit = self.unit_registry.base_unit
         else:
-            self._unit = self.unit_registry.get_unit(unit_symbol)
+            self._unit = self.unit_registry.get_unit(str(unit))
 
-    def to(self, unit_symbol: str):
+    def to(self, unit: Union[str, Unit]):
         if self.value is None:
             return None
         ref_value = self._unit.to_base_unit(self.value)
-        value = self.unit_registry.get_unit(unit_symbol).from_base_unit(ref_value)
-        return self.__class__(value, unit_symbol)
+        value = self.unit_registry.get_unit(str(unit)).from_base_unit(ref_value)
+        return self.__class__(value, unit)
 
     @property
     def unit_registry(self) -> UnitRegistry:
@@ -60,6 +61,15 @@ class Quantity:
                 return ' '.join([format(self.value, format_spec), unit])
 
         return format(self.value, format_spec)
+
+    def __mul__(self, other):
+        if isinstance(other, (int, float)):
+            return self.__class__(self.value * other, self.unit)
+
+        return NotImplemented
+
+    def __rmul__(self, other):
+        return self * other
 
     @property
     def unit(self) -> Unit:

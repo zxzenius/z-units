@@ -1,3 +1,4 @@
+from __future__ import annotations
 from typing import Iterable
 
 from . import unit as u
@@ -29,7 +30,7 @@ class UnitRegistry:
     def get_unit(self, symbol: str):
         if unit := self._symbol_to_unit.get(symbol):
             return unit
-        raise ValueError(f"Unit with symbol {symbol} not found")
+        raise ValueError(f"Unit '{symbol}' not found")
 
     @property
     def units(self):
