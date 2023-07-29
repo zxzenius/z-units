@@ -4,7 +4,7 @@ A simple unit-converter for chemical engineers
 
 ## Feature
 
-* Gauge pressure (MPag, kPag, psig, ...) can be used
+* Gauge pressure units (MPag, kPag, psig, ...) are ready for use
 * Friendly to HYSYS user
 
 ## Install
@@ -13,36 +13,58 @@ A simple unit-converter for chemical engineers
 pip install z-units
 ```
 
-## Usage
+## Quickstart
 
 ```python
-from z_units import quantity as q
-# pick a quantity
-f = q.MolarFlow(3)
-# to base unit
-f.to_base()
-# convert
-f.to('kmol/s')
-# list available units
-print(f.units)
-# get value
-value, unit = f.value, f.unit
-# gauge pressure
-p = q.Pressure(5, 'bar').to('MPag')
-# change local atmospheric pressure (default: 101325 Pa)
-from z_units import config
-config.set_local_atmospheric_pressure(50e3)
-q.Pressure(100, 'kPa').to('kPag')
-# change standard temperature (default: 20 degC)
-# affect standard cubic meter "Sm**3"
-config.set_standard_temperature(15)
-q.Substance(100, 'Nm3').to('Sm3')
-# formatting
-# with unit in styles, format spec starts with "u"
-format(q.MolarEntropy(100), 'u')
-# '100 kJ/kmol-C' (quick-style)
-format(q.MolarEntropy(100), 'up')
-# '100 kJ/(kmol*C)' (expression-style)
+>>> from z_units import quantity as q
+>>> f = q.MolarFlow(3)
+>>> f
+<MolarFlow(3, 'kmol/s')>
+f.value, f.unit
+(3, <Unit('kmol/s')>)
+>>> f.to('kmol/h')
+<MolarFlow(10800.0, 'kmol/h')>
+>>> q.Pressure(15, 'psi').to('MPag')
+<Pressure(0.0020963594, 'MPag')>
+```
+Related to gauge pressure, local atmospheric pressure (default: 101325 Pa) can be altered:
+
+```python
+>>> from z_units import config
+# Before
+>>> q.Pressure(100, 'kPa').to('kPag')
+<Pressure(-1.325, 'kPag')>
+# Set to 50e3 Pa (50 kPa)
+>>> config.set_local_atmospheric_pressure(50e3)
+# After
+>>> q.Pressure(100, 'kPa').to('kPag')
+<Pressure(50.0, 'kPag')>
+```
+
+Standard temperature (default: 20 degC) can be redefined, affecting standard cubic meter "Sm**3":
+
+```python
+# Before
+>>> q.Substance(100, 'Nm3').to('Sm3')
+<Substance(107.321984, 'Sm3')>
+# Set to 15 degC
+>>> config.set_standard_temperature(15)
+# After
+>>> q.Substance(100, 'Nm3').to('Sm3')
+<Substance(105.491488, 'Sm3')>
+```
+
+Format quantity to string with styles:  
+```python
+# Only value
+>>> format(q.MolarEntropy(100))
+'100'
+# With unit, quick style
+>>> format(q.MolarEntropy(100), 'u')
+'100 kJ/kmol-C'
+# With unit, definition style
+>>> format(q.MolarEntropy(100), 'up')
+'100 kJ/(kmol*C)'
 ```
 
 ## Predefined Quantities
@@ -79,3 +101,7 @@ format(q.MolarEntropy(100), 'up')
 * MolarVolume
 * Fraction
 * Dimensionless
+
+## About it
+
+As a chemical engineer, the Gauge-Pressure units are very useful to me. Unfortunately those units are not supported in some popular modules, so I reinvent the wheel.
