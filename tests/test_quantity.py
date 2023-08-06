@@ -434,3 +434,17 @@ def test_dimensionless():
     x = q.Dimensionless(1)
     assert x.unit.symbol == ''
     assert x.unit == x.base_unit
+
+
+def test_operation():
+    x = q.Length(1)
+    assert x == q.Length(1)
+    assert x != q.Length(2)
+    assert x < q.Length(2)
+    assert x <= q.Length(1)
+    assert x == q.Length(1000, 'mm')
+    assert q.Length(100, 'cm') == q.Length(1000, 'mm')
+    assert q.Length(200, 'cm') != q.Length(1000, 'mm')
+    assert q.Length(200, 'cm') >= q.Length(1000, 'mm')
+    assert q.Length(1, 'cm') * 100 == q.Length(1, 'm')
+    assert 200 * q.Length(1, 'mm') == q.Length(2, 'dm')

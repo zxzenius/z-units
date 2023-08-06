@@ -23,8 +23,11 @@ class Quantity:
     def to(self, unit: Union[str, Unit]):
         if self.value is None:
             return None
+        unit = self.unit_registry.get_unit(str(unit))
+        if unit == self.unit:
+            return self
         ref_value = self._unit.to_base_unit(self.value)
-        value = self.unit_registry.get_unit(str(unit)).from_base_unit(ref_value)
+        value = unit.from_base_unit(ref_value)
         return self.__class__(value, unit)
 
     @property
@@ -43,7 +46,7 @@ class Quantity:
         return self.unit_registry.units
 
     def to_base(self):
-        return self.to(self.base_unit.symbol)
+        return self.to(self.base_unit)
 
     def __repr__(self):
         if isinstance(self.value, float):
@@ -70,6 +73,20 @@ class Quantity:
 
     def __rmul__(self, other):
         return self * other
+
+    def __eq__(self, other):
+        if isinstance(other, self.__class__):
+            return self.to_base().value == other.to_base().value
+
+        return False
+
+    def __gt__(self, other):
+        if isinstance(other, self.__class__):
+            return self.to_base().value > other.to_base().value
+
+    def __ge__(self, other):
+        if isinstance(other, self.__class__):
+            return self.to_base().value >= other.to_base().value
 
     @property
     def unit(self) -> Unit:
