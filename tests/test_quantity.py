@@ -1,7 +1,7 @@
 from math import isclose
 
 from z_units import quantity as q
-from z_units.config import set_local_atmospheric_pressure, set_standard_temperature
+from z_units.config import set_local_atmospheric_pressure, set_standard_temperature, get_standard_temperature
 
 
 def test_length():
@@ -90,7 +90,7 @@ def test_substance():
     assert x.unit == x.base_unit
     assert isclose(x.to('mol').value, 1e3, rel_tol=1e-4)
     assert isclose(x.to('Nm3').value, 22.414, rel_tol=1e-4)
-    assert isclose(x.to('Sm3').value, 24.055149, rel_tol=1e-4)
+    assert isclose(x.to('Sm3_20C').value, 24.055149, rel_tol=1e-4)
     assert isclose(x.to('SCF').value, 836.56108, rel_tol=1e-4)
     assert isclose(x.to('MSCF').value, 836.56108e-3, rel_tol=1e-4)
     assert isclose(x.to('MMSCF').value, 836.56108e-6, rel_tol=1e-4)
@@ -247,6 +247,7 @@ def test_molar_flow():
     assert isclose(x.to('kmol/min').value, 60, rel_tol=1e-4)
     assert isclose(x.to('Nm3/h').value, 80690.4, rel_tol=1e-4)
     assert isclose(x.to('Nm3/d').value, 1936569.6, rel_tol=1e-4)
+    set_standard_temperature(20)
     assert isclose(x.to('Sm3/h').value, 86598.538, rel_tol=1e-4)
     assert isclose(x.to('Sm3/d').value, 2078364.92, rel_tol=1e-4)
     assert isclose(x.to('mol/h').value, 3600e3, rel_tol=1e-4)
@@ -399,11 +400,11 @@ def test_mass_heat():
 
 def test_standard_gas_flow():
     x = q.StandardGasFlow(1)
-    assert x.unit.symbol == 'sm3/s'
+    assert x.unit.symbol == 'Sm3/s'
     assert x.unit == x.base_unit
-    assert isclose(x.to('sm3/h').value, 3600, rel_tol=1e-4)
-    assert isclose(x.to('sm3/d').value, 3600 * 24, rel_tol=1e-4)
-    assert isclose(x.to('sm3/min').value, 60, rel_tol=1e-4)
+    assert isclose(x.to('Sm3/h').value, 3600, rel_tol=1e-4)
+    assert isclose(x.to('Sm3/d').value, 3600 * 24, rel_tol=1e-4)
+    assert isclose(x.to('Sm3/min').value, 60, rel_tol=1e-4)
 
 
 def test_kinematic_viscosity():

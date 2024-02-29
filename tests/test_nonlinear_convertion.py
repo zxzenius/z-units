@@ -11,3 +11,4 @@ def test_convert():
     config.set_standard_temperature(15)
     f2 = f.to('Sm3/h').value
     assert not isclose(f1, f2)
+    config.set_standard_temperature(20)

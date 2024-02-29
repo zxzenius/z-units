@@ -104,6 +104,8 @@ substance = UnitRegistry(units=[
     u.mole,
     u.normal_cubic_meter,
     u.standard_cubic_meter,
+    u.standard_cubic_meter_20C,
+    u.standard_cubic_meter_60F,
     u.standard_cubic_foot,
     u.kilo_standard_cubic_foot,
     u.million_standard_cubic_foot
@@ -185,7 +187,11 @@ molar_flow = UnitRegistry(units=[
     u.normal_cubic_meter_per_hour,
     u.normal_cubic_meter_per_day,
     u.standard_cubic_meter_per_hour,
+    u.standard_cubic_meter_20C_per_hour,
+    u.standard_cubic_meter_60F_per_hour,
     u.standard_cubic_meter_per_day,
+    u.standard_cubic_meter_20C_per_day,
+    u.standard_cubic_meter_60F_per_day,
     u.mole_per_hour,
     u.mole_per_minute,
     u.mole_per_second,
@@ -337,10 +343,10 @@ mass_density = UnitRegistry([
 ])
 
 standard_gas_flow = UnitRegistry([
-    u.Unit('sm**3/h', factor=1 / u.hour.factor),
-    u.Unit('sm**3/d', factor=1 / u.day.factor),
-    u.Unit('sm**3/min', factor=1 / u.minute.factor),
-    u.BaseUnit('sm**3/s')
+    u.Unit('Sm**3/h', factor=1 / u.hour.factor),
+    u.Unit('Sm**3/d', factor=1 / u.day.factor),
+    u.Unit('Sm**3/min', factor=1 / u.minute.factor),
+    u.BaseUnit('Sm**3/s')
 ])
 
 molar_enthalpy = UnitRegistry([

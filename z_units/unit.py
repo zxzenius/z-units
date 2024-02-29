@@ -284,11 +284,14 @@ kilomole = BaseUnit('kmol')
 mole = Unit('mol', defined_by=1e-3 * kilomole)
 normal_cubic_meter = Unit('Nm**3', factor=1 / 22.414)
 # @20 degC
-standard_cubic_meter = Unit('Sm**3',
-                            factor=lambda: normal_cubic_meter.factor * 273.15 / (273.15 + get_standard_temperature()))
-# scf is @60 degF, so some math need to be done
 T_60F = kelvin.from_base_unit(fahrenheit.to_base_unit(60))
 T_0C = kelvin.from_base_unit(0)
+T_20C = kelvin.from_base_unit(20)
+standard_cubic_meter = Unit('Sm**3',
+                            factor=lambda: normal_cubic_meter.factor * T_0C / (T_0C + get_standard_temperature()))
+standard_cubic_meter_20C = Unit('Sm**3_20C', defined_by=normal_cubic_meter * T_0C / T_20C)
+standard_cubic_meter_60F = Unit('Sm**3_60F', defined_by=normal_cubic_meter * T_0C / T_60F)
+# scf is @60 degF
 standard_cubic_foot = Unit('SCF', defined_by=normal_cubic_meter * cubic_foot * T_0C / T_60F)
 kilo_standard_cubic_foot = Unit('MSCF', defined_by=1e3 * standard_cubic_foot)
 million_standard_cubic_foot = Unit('MMSCF', defined_by=1e6 * standard_cubic_foot)
@@ -349,8 +352,18 @@ kilomole_per_hour = Unit('kmol/h', defined_by=kilomole / hour)
 kilomole_per_minute = Unit('kmol/min', defined_by=kilomole / minute)
 normal_cubic_meter_per_hour = Unit('Nm**3/h', defined_by=normal_cubic_meter / hour)
 normal_cubic_meter_per_day = Unit('Nm**3/d', defined_by=normal_cubic_meter / day)
-standard_cubic_meter_per_hour = Unit('Sm**3/h', defined_by=standard_cubic_meter / hour)
-standard_cubic_meter_per_day = Unit('Sm**3/d', defined_by=standard_cubic_meter / day)
+# standard_cubic_meter_per_hour = Unit('Sm**3/h', defined_by=standard_cubic_meter / hour)
+standard_cubic_meter_per_hour = Unit(
+    'Sm**3/h',
+    factor=lambda: normal_cubic_meter.factor * T_0C / (T_0C + get_standard_temperature()) / hour.factor)
+standard_cubic_meter_20C_per_hour = Unit('Sm**3_20C/h', defined_by=standard_cubic_meter_20C / hour)
+standard_cubic_meter_60F_per_hour = Unit('Sm**3_60F/h', defined_by=standard_cubic_meter_60F / hour)
+# standard_cubic_meter_per_day = Unit('Sm**3/d', defined_by=standard_cubic_meter / day)
+standard_cubic_meter_per_day = Unit(
+    'Sm**3/d',
+    factor=lambda: normal_cubic_meter.factor * T_0C / (T_0C + get_standard_temperature()) / day.factor)
+standard_cubic_meter_20C_per_day = Unit('Sm**3_20C/d', defined_by=standard_cubic_meter_20C / day)
+standard_cubic_meter_60F_per_day = Unit('Sm**3_60F/d', defined_by=standard_cubic_meter_60F / day)
 mole_per_hour = Unit('mol/h', defined_by=mole / hour)
 mole_per_minute = Unit('mol/min', defined_by=mole / minute)
 mole_per_second = Unit('mol/s', defined_by=mole)

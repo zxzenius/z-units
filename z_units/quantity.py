@@ -1,9 +1,12 @@
 from __future__ import annotations
+
+from functools import cached_property
 from typing import List, Union
 
 from .unit import Unit
 from .unit_registry import UnitRegistry
 from . import unit_registry as reg
+from .util import camel_to_snake
 
 
 class Quantity:
@@ -12,6 +15,8 @@ class Quantity:
 
     A quantity has a value and a unit
     """
+
+    # unit_registry: UnitRegistry = None
 
     def __init__(self, value, unit: Union[str, Unit] = None):
         self.value = value
@@ -30,12 +35,13 @@ class Quantity:
         value = unit.from_base_unit(ref_value)
         return self.__class__(value, unit)
 
-    @property
-    def unit_registry(self) -> UnitRegistry:
-        return self.get_unit_registry()
+    @classmethod
+    def get_unit_registry(cls) -> UnitRegistry:
+        return getattr(reg, camel_to_snake(cls.__name__))
 
-    def get_unit_registry(self):
-        return UnitRegistry(reg.dimensionless)
+    @cached_property
+    def unit_registry(self):
+        return self.get_unit_registry()
 
     @property
     def base_unit(self) -> Unit:
@@ -94,160 +100,128 @@ class Quantity:
 
 
 class Length(Quantity):
-    def get_unit_registry(self):
-        return reg.length
+    pass
 
 
 class Area(Quantity):
-    def get_unit_registry(self):
-        return reg.area
+    pass
 
 
 class Volume(Quantity):
-    def get_unit_registry(self):
-        return reg.volume
+    pass
 
 
 class Time(Quantity):
-    def get_unit_registry(self):
-        return reg.time
+    pass
 
 
 class Mass(Quantity):
-    def get_unit_registry(self):
-        return reg.mass
+    pass
 
 
 class Force(Quantity):
-    def get_unit_registry(self):
-        return reg.force
+    pass
 
 
 class Substance(Quantity):
-    def get_unit_registry(self):
-        return reg.substance
+    pass
 
 
 class Energy(Quantity):
-    def get_unit_registry(self):
-        return reg.energy
+    pass
 
 
 class Velocity(Quantity):
-    def get_unit_registry(self):
-        return reg.velocity
+    pass
 
 
 class Temperature(Quantity):
-    def get_unit_registry(self):
-        return reg.temperature
+    pass
 
 
 class DeltaTemperature(Quantity):
-    def get_unit_registry(self):
-        return reg.delta_temperature
+    pass
 
 
 class Pressure(Quantity):
-    def get_unit_registry(self):
-        return reg.pressure
+    pass
 
 
 class VolumeFlow(Quantity):
-    def get_unit_registry(self):
-        return reg.volume_flow
+    pass
 
 
 class MassDensity(Quantity):
-    def get_unit_registry(self):
-        return reg.mass_density
+    pass
 
 
 class HeatFlow(Quantity):
-    def get_unit_registry(self):
-        return reg.heat_flow
+    pass
 
 
 class MolarFlow(Quantity):
-    def get_unit_registry(self):
-        return reg.molar_flow
+    pass
 
 
 class MassFlow(Quantity):
-    def get_unit_registry(self):
-        return reg.mass_flow
+    pass
 
 
 class MolarDensity(Quantity):
-    def get_unit_registry(self):
-        return reg.molar_density
+    pass
 
 
 class MolarHeatCapacity(Quantity):
-    def get_unit_registry(self):
-        return reg.molar_heat_capacity
+    pass
 
 
 class MolarEntropy(Quantity):
-    def get_unit_registry(self):
-        return reg.molar_entropy
+    pass
 
 
 class MolarHeat(Quantity):
-    def get_unit_registry(self):
-        return reg.molar_heat
+    pass
 
 
 class ThermalConductivity(Quantity):
-    def get_unit_registry(self):
-        return reg.thermal_conductivity
+    pass
 
 
 class Viscosity(Quantity):
-    def get_unit_registry(self):
-        return reg.viscosity
+    pass
 
 
 class SurfaceTension(Quantity):
-    def get_unit_registry(self):
-        return reg.surface_tension
+    pass
 
 
 class MassHeatCapacity(Quantity):
-    def get_unit_registry(self):
-        return reg.mass_heat_capacity
+    pass
 
 
 class MassEntropy(Quantity):
-    def get_unit_registry(self):
-        return reg.mass_entropy
+    pass
 
 
 class MassHeat(Quantity):
-    def get_unit_registry(self):
-        return reg.mass_heat
+    pass
 
 
 class StandardGasFlow(Quantity):
-    def get_unit_registry(self):
-        return reg.standard_gas_flow
+    pass
 
 
 class KinematicViscosity(Quantity):
-    def get_unit_registry(self):
-        return reg.kinematic_viscosity
+    pass
 
 
 class MolarVolume(Quantity):
-    def get_unit_registry(self):
-        return reg.molar_volume
+    pass
 
 
 class Fraction(Quantity):
-    def get_unit_registry(self):
-        return reg.fraction
+    pass
 
 
 class Dimensionless(Quantity):
-    def get_unit_registry(self):
-        return reg.dimensionless
+    pass

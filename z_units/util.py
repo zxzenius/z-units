@@ -22,3 +22,7 @@ def multi_replace(string: str, replacements: dict) -> str:
 
     # For each match, look up the new string in the replacements
     return regexp.sub(lambda match: replacements[match.group(0)], string)
+
+
+def camel_to_snake(s):
+    return ''.join(['_'+c.lower() if c.isupper() else c for c in s]).lstrip('_')
