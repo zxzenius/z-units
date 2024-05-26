@@ -1,4 +1,4 @@
-from z_units import unit
+from zunits import unit
 
 
 def test_unit():

@@ -1,7 +1,7 @@
 from math import isclose
 
-from z_units import quantity as q
-from z_units.config import set_local_atmospheric_pressure, set_standard_temperature, get_standard_temperature
+from zunits import quantity as q
+from zunits.config import set_local_atmospheric_pressure, set_standard_temperature, get_standard_temperature
 
 
 def test_length():

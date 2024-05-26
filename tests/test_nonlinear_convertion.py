@@ -1,7 +1,7 @@
 from math import isclose
 
-from z_units import config
-from z_units import quantity as q
+from zunits import config
+from zunits import quantity as q
 
 
 def test_convert():
