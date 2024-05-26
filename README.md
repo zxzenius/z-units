@@ -16,7 +16,7 @@ pip install z-units
 ## Quickstart
 
 ```python
->>> from z_units import quantity as q
+>>> from zunits import quantity as q
 >>> f = q.MolarFlow(3)
 >>> f
 <MolarFlow(3, 'kmol/s')>
@@ -32,7 +32,7 @@ True
 Related to gauge pressure, local atmospheric pressure (default: 101325 Pa) can be altered:
 
 ```python
->>> from z_units import config
+>>> from zunits import config
 # Before
 >>> q.Pressure(100, 'kPa').to('kPag')
 <Pressure(-1.325, 'kPag')>
