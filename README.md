@@ -26,6 +26,8 @@ f.value, f.unit
 <MolarFlow(10800.0, 'kmol/h')>
 >>> q.Length(100, 'cm') == q.Length(1000, 'mm')
 True
+>>> q.Temperature('100C')
+<Temperature(1, 'C')>
 >>> q.Pressure(15, 'psi').to('MPag')
 <Pressure(0.0020963594, 'MPag')>
 ```
