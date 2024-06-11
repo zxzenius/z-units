@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import re
 from functools import cached_property
-from typing import List, Union
 
 from .unit import Unit
 from .unit_registry import UnitRegistry
@@ -19,7 +18,7 @@ class Quantity:
 
     # unit_registry: UnitRegistry = None
 
-    def __init__(self, value, unit: Union[str, Unit] = None):
+    def __init__(self, value, unit: str | Unit = None):
         if isinstance(value, str):
             match = re.match(r"(?P<v>[+-]?((\d+\.\d*)|(\.\d+)|(\d+))([eE][+-]?\d+)?)(?P<u>.*)", value.strip())
             if match:
@@ -33,7 +32,7 @@ class Quantity:
             self.value = value
             self.unit = unit
 
-    def to(self, unit: Union[str, Unit]):
+    def to(self, unit: str | Unit):
         if self.value is None:
             return None
         unit = self.unit_registry.get_unit(str(unit))
@@ -56,7 +55,7 @@ class Quantity:
         return self.unit_registry.base_unit
 
     @property
-    def units(self) -> List[Unit]:
+    def units(self) -> list[Unit]:
         return self.unit_registry.units
 
     def to_base(self):
