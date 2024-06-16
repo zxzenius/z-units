@@ -36,6 +36,10 @@ class UnitRegistry:
     def units(self):
         return self._units
 
+    @property
+    def symbols(self):
+        return list(self._symbol_to_unit.keys())
+
 
 length = UnitRegistry(units=[
     u.meter,
