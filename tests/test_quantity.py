@@ -6,6 +6,9 @@ from zunits.config import set_local_atmospheric_pressure, set_standard_temperatu
 
 def test_length():
     x = q.Length(1)
+    assert x == q.Length('1m')
+    assert x == q.Length('1')
+    assert x == q.Length('1 m')
     assert x.unit.symbol == 'm'
     assert x.unit == x.base_unit
     assert f'{x:u}' == '1 m'

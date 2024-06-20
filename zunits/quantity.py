@@ -1,7 +1,7 @@
 from __future__ import annotations
 
+import re
 from functools import cached_property
-from typing import List, Union
 
 from .unit import Unit
 from .unit_registry import UnitRegistry
@@ -18,14 +18,21 @@ class Quantity:
 
     # unit_registry: UnitRegistry = None
 
-    def __init__(self, value, unit: Union[str, Unit] = None):
-        self.value = value
-        if unit is None:
-            self._unit = self.unit_registry.base_unit
+    def __init__(self, value, unit: str | Unit = None):
+        if isinstance(value, str):
+            match = re.match(r"(?P<v>[+-]?((\d+\.\d*)|(\.\d+)|(\d+))([eE][+-]?\d+)?)(?P<u>.*)", value.strip())
+            if match:
+                res_dict = match.groupdict()
+                self.value = float(res_dict['v'])
+                if not unit:
+                    self.unit = res_dict['u'].strip()
+                else:
+                    self.unit = unit
         else:
-            self._unit = self.unit_registry.get_unit(str(unit))
+            self.value = value
+            self.unit = unit
 
-    def to(self, unit: Union[str, Unit]):
+    def to(self, unit: str | Unit):
         if self.value is None:
             return None
         unit = self.unit_registry.get_unit(str(unit))
@@ -48,7 +55,7 @@ class Quantity:
         return self.unit_registry.base_unit
 
     @property
-    def units(self) -> List[Unit]:
+    def units(self) -> list[Unit]:
         return self.unit_registry.units
 
     def to_base(self):
@@ -97,6 +104,13 @@ class Quantity:
     @property
     def unit(self) -> Unit:
         return self._unit
+
+    @unit.setter
+    def unit(self, value):
+        if not value:
+            self._unit = self.unit_registry.base_unit
+        else:
+            self._unit = self.unit_registry.get_unit(str(value))
 
 
 class Length(Quantity):

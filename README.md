@@ -26,8 +26,13 @@ f.value, f.unit
 <MolarFlow(10800.0, 'kmol/h')>
 >>> q.Length(100, 'cm') == q.Length(1000, 'mm')
 True
+>>> q.Temperature('100C')
+<Temperature(1, 'C')>
 >>> q.Pressure(15, 'psi').to('MPag')
 <Pressure(0.0020963594, 'MPag')>
+>>> from zunits import convert
+>>> convert(1, 'm', 'ft')
+<Length(3.2808399, 'ft')>
 ```
 Related to gauge pressure, local atmospheric pressure (default: 101325 Pa) can be altered:
 
