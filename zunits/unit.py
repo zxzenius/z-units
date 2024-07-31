@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Union, Callable
+from typing import Union, Callable, Iterable
 
 from .config import get_local_atmospheric_pressure, get_standard_temperature
 from .util import multi_replace
@@ -49,7 +49,7 @@ class Unit:
     """
 
     def __init__(self, symbol: str, defined_by=None, factor: Union[float, Callable] = 1,
-                 offset: Union[float, Callable] = 0):
+                 offset: Union[float, Callable] = 0, aliases: Iterable[str] = []):
         if isinstance(defined_by, Unit):
             factor = defined_by.factor
 
@@ -59,6 +59,7 @@ class Unit:
         self._symbol = symbol.replace(' ', '')
         self._factor = factor
         self._offset = offset
+        self.aliases = aliases
 
     def to_base_unit(self, value: float):
         """
@@ -131,6 +132,14 @@ class Unit:
             return self._offset()
 
         return self._offset
+
+    @property
+    def aliases(self) -> list[str]:
+        return self._aliases
+
+    @aliases.setter
+    def aliases(self, alist: Iterable[str]):
+        self._aliases = list(set(alist).union([self.symbol]))
 
     def __repr__(self):
         return f"<Unit('{self}')>"
