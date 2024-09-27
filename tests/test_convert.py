@@ -1,5 +1,5 @@
-from zunits import convert
-from zunits import quantity as q
+from z_unit import convert
+from z_unit import quantity as q
 
 
 def test_convert():

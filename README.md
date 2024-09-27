@@ -16,36 +16,36 @@ pip install z-units
 ## Quickstart
 
 ```python
->>> from zunits import quantity as q
->>> f = q.MolarFlow(3)
->>> f
-<MolarFlow(3, 'kmol/s')>
+>> > from z_unit import quantity as q
+>> > f = q.MolarFlow(3)
+>> > f
+< MolarFlow(3, 'kmol/s') >
 f.value, f.unit
-(3, <Unit('kmol/s')>)
->>> f.to('kmol/h')
-<MolarFlow(10800.0, 'kmol/h')>
->>> q.Length(100, 'cm') == q.Length(1000, 'mm')
+(3, < Unit('kmol/s') >)
+>> > f.to('kmol/h')
+< MolarFlow(10800.0, 'kmol/h') >
+>> > q.Length(100, 'cm') == q.Length(1000, 'mm')
 True
->>> q.Temperature('100C')
-<Temperature(1, 'C')>
->>> q.Pressure(15, 'psi').to('MPag')
-<Pressure(0.0020963594, 'MPag')>
->>> from zunits import convert
->>> convert(1, 'm', 'ft')
-<Length(3.2808399, 'ft')>
+>> > q.Temperature('100C')
+< Temperature(1, 'C') >
+>> > q.Pressure(15, 'psi').to('MPag')
+< Pressure(0.0020963594, 'MPag') >
+>> > from z_unit import convert
+>> > convert(1, 'm', 'ft')
+< Length(3.2808399, 'ft') >
 ```
 Related to gauge pressure, local atmospheric pressure (default: 101325 Pa) can be altered:
 
 ```python
->>> from zunits import config
+>> > from z_unit import config
 # Before
->>> q.Pressure(100, 'kPa').to('kPag')
-<Pressure(-1.325, 'kPag')>
+>> > q.Pressure(100, 'kPa').to('kPag')
+< Pressure(-1.325, 'kPag') >
 # Set to 50e3 Pa (50 kPa)
->>> config.set_local_atmospheric_pressure(50e3)
+>> > config.set_local_atmospheric_pressure(50e3)
 # After
->>> q.Pressure(100, 'kPa').to('kPag')
-<Pressure(50.0, 'kPag')>
+>> > q.Pressure(100, 'kPa').to('kPag')
+< Pressure(50.0, 'kPag') >
 ```
 
 Standard temperature (default: 20 degC) can be redefined, affecting standard cubic meter "Sm**3":
