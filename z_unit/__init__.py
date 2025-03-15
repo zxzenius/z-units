@@ -1,7 +1,6 @@
-from . import quantity
-from . import unit
-from . import config
-from .quantity import Quantity
+from z_unit import quantity
+from z_unit import unit
+from z_unit.quantity import Quantity
 
 quantity_registry = {cls: cls.get_unit_registry().symbols for cls in quantity.Quantity.__subclasses__()}
 
@@ -20,3 +19,5 @@ def convert(value, from_unit: str, to_unit: str) -> Quantity:
     for Q, symbols in quantity_registry.items():
         if {from_unit, to_unit}.issubset(symbols):
             return Q(value, from_unit).to(to_unit)
+        
+    raise ValueError(f"Cannot convert from '{from_unit}' to '{to_unit}'")
