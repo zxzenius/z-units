@@ -1,14 +1,16 @@
 from math import isclose
 
-from z_unit import config
+from z_unit.environment import get_env
 from z_unit import quantity as q
 
 
 def test_convert():
-    config.set_standard_temperature(20)
+    env = get_env()
+    env.reset()
+    env.standard_temperature = 293.15
     f = q.MolarFlow(1, 'Nm3/h')
     f1 = f.to('Sm3/h').value
-    config.set_standard_temperature(15)
+    env.standard_temperature = 273.15
     f2 = f.to('Sm3/h').value
     assert not isclose(f1, f2)
-    config.set_standard_temperature(20)
+    env.reset()

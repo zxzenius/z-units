@@ -1,7 +1,7 @@
 from math import isclose
 
 from z_unit import quantity as q
-from z_unit.config import set_local_atmospheric_pressure, set_standard_temperature, get_standard_temperature
+from z_unit.environment import get_env
 
 
 def test_length():
@@ -97,8 +97,10 @@ def test_substance():
     assert isclose(x.to('SCF').value, 836.56108, rel_tol=1e-4)
     assert isclose(x.to('MSCF').value, 836.56108e-3, rel_tol=1e-4)
     assert isclose(x.to('MMSCF').value, 836.56108e-6, rel_tol=1e-4)
-    set_standard_temperature(0)
+    env = get_env()
+    env.standard_temperature = 273.15
     assert isclose(x.to('Sm3').value, x.to('Nm3').value)
+    env.reset()
 
 
 def test_energy():
@@ -183,8 +185,13 @@ def test_pressure():
     assert isclose(x.to('inHg_32F_g').value, -0.39127, rel_tol=1e-4)
     assert isclose(x.to('inHg_60F_g').value, -0.39237, rel_tol=1e-4)
     assert isclose(q.Pressure(1, 'MPag').to('psi').value, 159.73368651, rel_tol=1e-4)
-    set_local_atmospheric_pressure(50e3)
+    # change atmospheric pressure
+    env = get_env()
+    env.atmospheric_pressure = 50e3
     assert isclose(x.to('kPag').value, 50)
+    # restore atmospheric pressure
+    env.reset()
+    assert isclose(x.to('kPag').value, -1.325, rel_tol=1e-4)
 
 
 def test_volume_flow():
@@ -250,7 +257,8 @@ def test_molar_flow():
     assert isclose(x.to('kmol/min').value, 60, rel_tol=1e-4)
     assert isclose(x.to('Nm3/h').value, 80690.4, rel_tol=1e-4)
     assert isclose(x.to('Nm3/d').value, 1936569.6, rel_tol=1e-4)
-    set_standard_temperature(20)
+    env = get_env()
+    env.standard_temperature = 293.15
     assert isclose(x.to('Sm3/h').value, 86598.538, rel_tol=1e-4)
     assert isclose(x.to('Sm3/d').value, 2078364.92, rel_tol=1e-4)
     assert isclose(x.to('mol/h').value, 3600e3, rel_tol=1e-4)
@@ -261,7 +269,8 @@ def test_molar_flow():
     assert isclose(x.to('MSCFD').value, 7.22788776e4, rel_tol=1e-4)
     assert isclose(x.to('MMSCFH').value, 3.0116196, rel_tol=1e-4)
     assert isclose(x.to('MMSCFD').value, 72.2788776, rel_tol=1e-4)
-
+    env.reset()
+    
 
 def test_mass_flow():
     x = q.MassFlow(1)
