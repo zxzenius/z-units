@@ -1,6 +1,6 @@
-from z_unit import quantity
-from z_unit import unit
-from z_unit.quantity import Quantity
+from z_units import quantity
+from z_units import unit
+from z_units.quantity import Quantity
 
 quantity_registry = {cls: cls.get_unit_registry().symbols for cls in quantity.Quantity.__subclasses__()}
 

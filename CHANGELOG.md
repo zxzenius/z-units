@@ -1,3 +1,7 @@
+## Release v0.1.9 (2025.0320)
+
+- Fix package name bug (z_unit -> z_units)
+
 ## Release v0.1.8 (2025.0312)
 
 ### Features & Improvements
@@ -12,15 +16,19 @@
 ### Migration Guide
 
 Old configuration:
+
 ```python
-from z_unit import config
+from z_units import config
+
 config.set_local_atmospheric_pressure(100e3)
 config.set_standard_temperature(15)
 ```
 
 New configuration:
+
 ```python
-from z_unit.environment import get_env
+from z_units.environment import get_env
+
 env = get_env()
 env.atmospheric_pressure = 100e3  # in Pa
 env.standard_temperature = 273.15 + 15  # in K

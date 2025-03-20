@@ -1,7 +1,7 @@
 from __future__ import annotations
 from collections import namedtuple
 
-from z_unit.constant import ATM
+from z_units.constant import ATM
 
 STP = namedtuple('STP', ['temperature', 'pressure'])
 

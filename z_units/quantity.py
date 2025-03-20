@@ -3,10 +3,10 @@ from __future__ import annotations
 import re
 from functools import cached_property
 
-from .unit import Unit
-from .unit_registry import UnitRegistry
-from . import unit_registry as reg
-from .util import camel_to_snake
+from z_units.unit import Unit
+from z_units.unit_registry import UnitRegistry
+from z_units import unit_registry as reg
+from z_units.util import camel_to_snake
 
 
 class Quantity:

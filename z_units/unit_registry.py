@@ -1,8 +1,8 @@
 from __future__ import annotations
 from typing import Iterable, Optional
 
-from z_unit import unit as u
-from z_unit.unit import Unit
+from z_units import unit as u
+from z_units.unit import Unit
 
 
 class UnitRegistry:
