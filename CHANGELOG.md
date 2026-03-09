@@ -1,3 +1,9 @@
+## Release v0.1.10 (2026.0309)
+
+### Features & Improvements
+
+- Support `atm_pressure` parameter in `Quantity` initialization and `.to()` method for flexible gauge pressure calculation without changing global configuration.
+
 ## Release v0.1.9 (2025.0320)
 
 - Fix package name bug (z_unit -> z_units)
