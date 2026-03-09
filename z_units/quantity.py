@@ -20,12 +20,15 @@ class Quantity:
 
     def __init__(self, value, unit: str | Unit = None, **kwargs):
         if isinstance(value, str):
-            match = re.match(r"(?P<v>[+-]?((\d+\.\d*)|(\.\d+)|(\d+))([eE][+-]?\d+)?)(?P<u>.*)", value.strip())
+            match = re.match(
+                r"(?P<v>[+-]?((\d+\.\d*)|(\.\d+)|(\d+))([eE][+-]?\d+)?)(?P<u>.*)",
+                value.strip(),
+            )
             if match:
                 res_dict = match.groupdict()
-                self.value = float(res_dict['v'])
+                self.value = float(res_dict["v"])
                 if not unit:
-                    self.unit = res_dict['u'].strip()
+                    self.unit = res_dict["u"].strip()
                 else:
                     self.unit = unit
         else:
@@ -69,14 +72,15 @@ class Quantity:
         return f"<{self.__class__.__name__}({self.value}, '{self.unit.symbol}')>"
 
     def __str__(self):
-        return f'{self.value}'
+        return f"{self.value}"
 
-    def __format__(self, format_spec=''):
-        if (pos := format_spec.find('u')) > -1:
-            unit = format(self.unit, format_spec[pos + 1:])
+    def __format__(self, format_spec=""):
+        pos = format_spec.find("u")
+        if pos > -1:
+            unit = format(self.unit, format_spec[pos + 1 :])
             format_spec = format_spec[0:pos]
             if unit:
-                return ' '.join([format(self.value, format_spec), unit])
+                return " ".join([format(self.value, format_spec), unit])
 
         return format(self.value, format_spec)
 

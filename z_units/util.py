@@ -18,11 +18,11 @@ def multi_replace(string: str, replacements: dict) -> str:
     sub_strs = sorted(replacements, key=len, reverse=True)
 
     # Create a big OR regex that matches any of the substrings to replace
-    regexp = re.compile('|'.join(map(re.escape, sub_strs)))
+    regexp = re.compile("|".join(map(re.escape, sub_strs)))
 
     # For each match, look up the new string in the replacements
     return regexp.sub(lambda match: replacements[match.group(0)], string)
 
 
 def camel_to_snake(s):
-    return ''.join(['_'+c.lower() if c.isupper() else c for c in s]).lstrip('_')
+    return "".join(["_" + c.lower() if c.isupper() else c for c in s]).lstrip("_")

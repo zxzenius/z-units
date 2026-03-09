@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Iterable, Optional
+from typing import Optional
 
 from z_units import unit as u
 from z_units.unit import Unit
@@ -10,7 +10,6 @@ class UnitRegistry:
         self._name = name
         self._units: dict[str, Unit] = {}
         self._base_unit: Optional[Unit] = None
-        
 
     def register(self, unit: Unit, is_base: bool = False):
         """
@@ -41,7 +40,7 @@ class UnitRegistry:
     def get_unit(self, symbol: str) -> Unit:
         if symbol not in self._units:
             raise ValueError(f"Unit '{symbol}' not found")
-        return self._units[symbol]        
+        return self._units[symbol]
 
     @property
     def units(self) -> list[Unit]:
@@ -108,7 +107,7 @@ force.register(u.kilogram_force)
 force.register(u.tonne_force)
 force.register(u.pound_force)
 
-substance = UnitRegistry(name="substance")  
+substance = UnitRegistry(name="substance")
 substance.register(u.kilomole, is_base=True)
 substance.register(u.mole)
 substance.register(u.normal_cubic_meter)
@@ -310,7 +309,7 @@ surface_tension.register(u.dyne_per_centimeter, is_base=True)
 surface_tension.register(u.dyn_per_centimeter)
 surface_tension.register(u.pound_force_per_foot)
 
-mass_heat_capacity = UnitRegistry(name="mass_heat_capacity")    
+mass_heat_capacity = UnitRegistry(name="mass_heat_capacity")
 mass_heat_capacity.register(u.kilojoule_per_gram_celsius)
 mass_heat_capacity.register(u.kilojoule_per_gram_kelvin)
 mass_heat_capacity.register(u.kilojoule_per_kilogram_celsius, is_base=True)
@@ -335,10 +334,10 @@ mass_density.register(u.gram_per_cubic_centimeter)
 mass_density.register(u.gram_per_milliliter)
 
 standard_gas_flow = UnitRegistry(name="standard_gas_flow")
-standard_gas_flow.register(u.Unit('Sm**3/h', factor=1 / u.hour.factor))
-standard_gas_flow.register(u.Unit('Sm**3/d', factor=1 / u.day.factor))
-standard_gas_flow.register(u.Unit('Sm**3/min', factor=1 / u.minute.factor))
-standard_gas_flow.register(u.Unit('Sm**3/s'), is_base=True)
+standard_gas_flow.register(u.Unit("Sm**3/h", factor=1 / u.hour.factor))
+standard_gas_flow.register(u.Unit("Sm**3/d", factor=1 / u.day.factor))
+standard_gas_flow.register(u.Unit("Sm**3/min", factor=1 / u.minute.factor))
+standard_gas_flow.register(u.Unit("Sm**3/s"), is_base=True)
 
 molar_enthalpy = UnitRegistry(name="molar_enthalpy")
 molar_enthalpy.register(u.kilojoule_per_mole)
@@ -381,7 +380,7 @@ mass_enthalpy = mass_heat
 mass_energy = mass_heat
 
 kinematic_viscosity = UnitRegistry(name="kinematic_viscosity")
-kinematic_viscosity.register(u.Unit('cSt'), is_base=True)
+kinematic_viscosity.register(u.Unit("cSt"), is_base=True)
 
 fraction = UnitRegistry(name="fraction")
 fraction.register(u.dimensionless, is_base=True)

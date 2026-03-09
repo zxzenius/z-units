@@ -1,4 +1,4 @@
-## Release v0.1.10 (2026.0309)
+## Release v0.2.0 (2026.0309)
 
 ### Features & Improvements
 
@@ -41,7 +41,6 @@ env.standard_temperature = 273.15 + 15  # in K
 ```
 
 ## Release v0.1.7 (2024.0616)
-
 
 ### Features & Improvements
 
