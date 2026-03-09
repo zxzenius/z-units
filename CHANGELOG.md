@@ -1,3 +1,7 @@
+## Release v0.2.1 (2026.0310)
+
+- update CI workflow
+
 ## Release v0.2.0 (2026.0309)
 
 ### Features & Improvements
