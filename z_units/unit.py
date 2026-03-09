@@ -62,7 +62,7 @@ class Unit:
         self._offset = offset
         self.aliases = aliases
 
-    def to_base_unit(self, value: float):
+    def to_base_unit(self, value: float, **kwargs):
         """
         Convert value from this unit to base unit
         :param value: numerical value
@@ -70,7 +70,7 @@ class Unit:
         """
         return self.factor * value + self.offset
 
-    def from_base_unit(self, value: float):
+    def from_base_unit(self, value: float, **kwargs):
         """
         Convert value from base unit to this unit
         :param value: numerical valve
@@ -339,7 +339,7 @@ class PressureUnit(Unit):
     def is_absolute(self):
         return self.pressure_type == PressureType.ABSOLUTE
 
-    def to_base_unit(self, value: float) -> float:
+    def to_base_unit(self, value: float, **kwargs) -> float:
         """convert to base unit value"""
         # if self.is_base_unit:
         # return value
@@ -347,11 +347,14 @@ class PressureUnit(Unit):
         if self.is_gauge:
             # convert to absolute pressure
             abs_value = value * self.factor
-            return abs_value + get_env().atmospheric_pressure
+            atm_press = kwargs.get('atm_pressure')
+            if atm_press is None:
+                atm_press = get_env().atmospheric_pressure
+            return abs_value + atm_press
 
         return self.factor * value + self.offset
 
-    def from_base_unit(self, value: float) -> float:
+    def from_base_unit(self, value: float, **kwargs) -> float:
         """convert from base unit value"""
         # if self.is_base_unit:
         #     return value
@@ -360,7 +363,10 @@ class PressureUnit(Unit):
 
         if self.is_gauge:
             # convert to gauge pressure
-            guage_value = value - get_env().atmospheric_pressure
+            atm_press = kwargs.get('atm_pressure')
+            if atm_press is None:
+                atm_press = get_env().atmospheric_pressure
+            guage_value = value - atm_press
             return guage_value / self.factor
 
         return converted

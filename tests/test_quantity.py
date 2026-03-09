@@ -185,6 +185,16 @@ def test_pressure():
     assert isclose(x.to('inHg_32F_g').value, -0.39127, rel_tol=1e-4)
     assert isclose(x.to('inHg_60F_g').value, -0.39237, rel_tol=1e-4)
     assert isclose(q.Pressure(1, 'MPag').to('psi').value, 159.73368651, rel_tol=1e-4)
+
+    # test atm_pressure parameter
+    assert isclose(q.Pressure(100, 'kPa', atm_pressure=50e3).to('kPag').value, 50)
+    assert isclose(q.Pressure(100, 'kPag', atm_pressure=50e3).to('kPa').value, 150)
+    assert isclose(q.Pressure(100, 'kPa').to('kPag', atm_pressure=50e3).value, 50)
+    assert isclose(q.Pressure(100, 'kPag').to('kPa', atm_pressure=50e3).value, 150)
+    
+    # user specific example
+    assert isclose(q.Pressure(1, 'MPag', atm_pressure=101325).to('MPa').value, 1.101325)
+
     # change atmospheric pressure
     env = get_env()
     env.atmospheric_pressure = 50e3

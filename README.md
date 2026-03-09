@@ -41,8 +41,17 @@ True
 
 ### Gauge Pressure Handling
 
-The atmospheric pressure reference (default: 101325 Pa) can be configured globally:
+The atmospheric pressure reference (default: 101325 Pa) can be configured globally or passed as an argument locally.
 
+**Using argument locally:**
+```python
+>>> q.Pressure(100, 'kPa', atm_pressure=50e3).to('kPag')
+<Pressure(50.0, 'kPag')>
+>>> q.Pressure(100, 'kPa').to('kPag', atm_pressure=50e3)
+<Pressure(50.0, 'kPag')>
+```
+
+**Using global configuration:**
 ```python
 >>> from z_units.environment import get_env
 # Before

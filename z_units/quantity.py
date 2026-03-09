@@ -18,7 +18,7 @@ class Quantity:
 
     # unit_registry: UnitRegistry = None
 
-    def __init__(self, value, unit: str | Unit = None):
+    def __init__(self, value, unit: str | Unit = None, **kwargs):
         if isinstance(value, str):
             match = re.match(r"(?P<v>[+-]?((\d+\.\d*)|(\.\d+)|(\d+))([eE][+-]?\d+)?)(?P<u>.*)", value.strip())
             if match:
@@ -31,16 +31,18 @@ class Quantity:
         else:
             self.value = value
             self.unit = unit
+        self._kwargs = kwargs
 
-    def to(self, unit: str | Unit):
+    def to(self, unit: str | Unit, **kwargs):
         if self.value is None:
             return None
         unit = self.unit_registry.get_unit(str(unit))
         if unit == self.unit:
             return self
-        ref_value = self._unit.to_base_unit(self.value)
-        value = unit.from_base_unit(ref_value)
-        return self.__class__(value, unit)
+        merged_kwargs = {**self._kwargs, **kwargs}
+        ref_value = self._unit.to_base_unit(self.value, **merged_kwargs)
+        value = unit.from_base_unit(ref_value, **merged_kwargs)
+        return self.__class__(value, unit, **merged_kwargs)
 
     @classmethod
     def get_unit_registry(cls) -> UnitRegistry:
