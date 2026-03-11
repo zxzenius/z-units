@@ -40,10 +40,10 @@ class Quantity:
         if self.value is None:
             return None
         unit = self.unit_registry.get_unit(str(unit))
-        if unit == self.unit:
+        if unit == self.unit and not kwargs:
             return self
         merged_kwargs = {**self._kwargs, **kwargs}
-        ref_value = self._unit.to_base_unit(self.value, **merged_kwargs)
+        ref_value = self._unit.to_base_unit(self.value, **self._kwargs)
         value = unit.from_base_unit(ref_value, **merged_kwargs)
         return self.__class__(value, unit, **merged_kwargs)
 

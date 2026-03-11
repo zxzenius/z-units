@@ -45,10 +45,15 @@ The atmospheric pressure reference (default: 101325 Pa) can be configured global
 
 **Using argument locally:**
 ```python
->>> q.Pressure(100, 'kPa', atm_pressure=50e3).to('kPag')
-<Pressure(50.0, 'kPag')>
->>> q.Pressure(100, 'kPa').to('kPag', atm_pressure=50e3)
-<Pressure(50.0, 'kPag')>
+>>> # Define source environment
+>>> q.Pressure(100, 'kPag', atm_pressure=50e3).to('kPa')
+<Pressure(150.0, 'kPa')>
+>>> # Define target environment
+>>> q.Pressure(150, 'kPa').to('kPag', atm_pressure=50e3)
+<Pressure(100.0, 'kPag')>
+>>> # Convert between different local environments
+>>> q.Pressure(1, 'MPag', atm_pressure=1e5).to('MPag', atm_pressure=2e5)
+<Pressure(0.9, 'MPag')>
 ```
 
 **Using global configuration:**

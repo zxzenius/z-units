@@ -190,10 +190,12 @@ def test_pressure():
     assert isclose(q.Pressure(100, "kPa", atm_pressure=50e3).to("kPag").value, 50)
     assert isclose(q.Pressure(100, "kPag", atm_pressure=50e3).to("kPa").value, 150)
     assert isclose(q.Pressure(100, "kPa").to("kPag", atm_pressure=50e3).value, 50)
-    assert isclose(q.Pressure(100, "kPag").to("kPa", atm_pressure=50e3).value, 150)
+    assert isclose(q.Pressure(100, "kPag").to("kPa").value, 201.325)
+    assert isclose(q.Pressure(100, "kPag").to("kPa", atm_pressure=50e3).value, 201.325) # source uses default env (101.325)
 
     # user specific example
     assert isclose(q.Pressure(1, "MPag", atm_pressure=101325).to("MPa").value, 1.101325)
+    assert isclose(q.Pressure(1, "MPag", atm_pressure=1e5).to("MPag", atm_pressure=2e5).value, 0.9)
 
     # change atmospheric pressure
     env = get_env()
