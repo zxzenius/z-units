@@ -1,3 +1,13 @@
+## Release v0.3.0 (2026.0311)
+
+### Features & Improvements
+
+- `atm_pressure` parameter in `Quantity` initialization (source environment) and `.to()` method (target environment).
+
+### Breaking Changes
+
+- **Drop support for Python 3.7 and 3.8.**
+
 ## Release v0.2.1 (2026.0310)
 
 - update CI workflow
