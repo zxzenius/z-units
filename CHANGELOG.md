@@ -1,3 +1,9 @@
+## Release v0.3.1 (2026.0312)
+
+### Features & Improvements
+
+- Export all `Quantity` subclasses (e.g., `Pressure`, `Length`) to the top-level `z_units` module namespace for direct import (e.g., `from z_units import Pressure`).
+
 ## Release v0.3.0 (2026.0311)
 
 ### Features & Improvements

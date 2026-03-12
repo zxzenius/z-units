@@ -18,19 +18,19 @@ pip install z-units
 ## Quickstart
 
 ```python
->>> from z_units import quantity as q
->>> f = q.MolarFlow(3)
+>>> from z_units import MolarFlow, Length, Temperature, Pressure
+>>> f = MolarFlow(3)
 >>> f
 <MolarFlow(3, 'kmol/s')>
 >>> f.value, f.unit
 (3, <Unit('kmol/s')>)
 >>> f.to('kmol/h')
 <MolarFlow(10800.0, 'kmol/h')>
->>> q.Length(100, 'cm') == q.Length(1000, 'mm')
+>>> Length(100, 'cm') == Length(1000, 'mm')
 True
->>> q.Temperature('100C')
+>>> Temperature('100C')
 <Temperature(1, 'C')>
->>> q.Pressure(15, 'psi').to('MPag')
+>>> Pressure(15, 'psi').to('MPag')
 <Pressure(0.0020963594, 'MPag')>
 >>> from z_units import convert
 >>> convert(1, 'm', 'ft')
@@ -45,29 +45,31 @@ The atmospheric pressure reference (default: 101325 Pa) can be configured global
 
 **Using argument locally:**
 ```python
+>>> from z_units import Pressure
 >>> # Define source environment
->>> q.Pressure(100, 'kPag', atm_pressure=50e3).to('kPa')
+>>> Pressure(100, 'kPag', atm_pressure=50e3).to('kPa')
 <Pressure(150.0, 'kPa')>
 >>> # Define target environment
->>> q.Pressure(150, 'kPa').to('kPag', atm_pressure=50e3)
+>>> Pressure(150, 'kPa').to('kPag', atm_pressure=50e3)
 <Pressure(100.0, 'kPag')>
 >>> # Convert between different local environments
->>> q.Pressure(1, 'MPag', atm_pressure=1e5).to('MPag', atm_pressure=2e5)
+>>> Pressure(1, 'MPag', atm_pressure=1e5).to('MPag', atm_pressure=2e5)
 <Pressure(0.9, 'MPag')>
 ```
 
 **Using global configuration:**
 ```python
 >>> from z_units.environment import get_env
+>>> from z_units import Pressure
 # Before
->>> q.Pressure(100, 'kPa').to('kPag')
+>>> Pressure(100, 'kPa').to('kPag')
 <Pressure(-1.325, 'kPag')>
 # Set to 100 kPa
 # atmospheric_pressure in Pa
 >>> env = get_env()
 >>> env.atmospheric_pressure = 100e3
 # After
->>> q.Pressure(100, 'kPa').to('kPag')
+>>> Pressure(100, 'kPa').to('kPag')
 <Pressure(0.0, 'kPag')>
 ```
 
@@ -77,12 +79,13 @@ Standard temperature and pressure (STP) conditions can be configured for standar
 
 ```python
 >>> from z_units.environment import get_env
+>>> from z_units import Substance
 # Default STP: 20°C, 101325 Pa
->>> q.Substance(100, 'Nm3').to('Sm3')
+>>> Substance(100, 'Nm3').to('Sm3')
 <Substance(107.321984, 'Sm3')>
 # Change to 15°C, set value in K
->> > get_env().standard_temperature = 273.15 + 15
->> > q.Substance(100, 'Nm3').to('Sm3')
+>>> get_env().standard_temperature = 273.15 + 15
+>>> Substance(100, 'Nm3').to('Sm3')
 <Substance(105.491488, 'Sm3')>
 ```
 
@@ -91,7 +94,8 @@ Standard temperature and pressure (STP) conditions can be configured for standar
 Multiple formatting styles are supported:
 
 ```python
->>> x = q.MolarEntropy(100)
+>>> from z_units import MolarEntropy
+>>> x = MolarEntropy(100)
 # Only value
 >>> f"{x}"
 '100'
