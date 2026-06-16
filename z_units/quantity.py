@@ -9,14 +9,32 @@ from z_units import unit_registry as reg
 from z_units.util import camel_to_snake
 
 
-class Quantity:
+class QuantityMeta(type):
+    """Metaclass for Quantity that enables class-level access to unit info."""
+
+    @property
+    def unit_registry(cls) -> UnitRegistry:
+        return cls.get_unit_registry()
+
+    @property
+    def base_unit(cls) -> Unit:
+        return cls.unit_registry.base_unit
+
+    @property
+    def units(cls) -> list[Unit]:
+        return cls.unit_registry.units
+
+    @property
+    def symbols(cls) -> list[str]:
+        return cls.unit_registry.symbols
+
+
+class Quantity(metaclass=QuantityMeta):
     """
     Class used to represent a Quantity
 
     A quantity has a value and a unit
     """
-
-    # unit_registry: UnitRegistry = None
 
     def __init__(self, value, unit: str | Unit = None, **kwargs):
         if isinstance(value, str):
@@ -62,6 +80,10 @@ class Quantity:
     @property
     def units(self) -> list[Unit]:
         return self.unit_registry.units
+
+    @property
+    def symbols(self) -> list[str]:
+        return self.unit_registry.symbols
 
     def to_base(self):
         return self.to(self.base_unit)

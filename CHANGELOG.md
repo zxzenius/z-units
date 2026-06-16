@@ -1,3 +1,9 @@
+## Release v0.4.0 (2026.0616)
+
+### Features & Improvements
+
+- Support class-level access for `units`, `symbols`, and `base_unit` on `Quantity` subclasses.
+
 ## Release v0.3.1 (2026.0312)
 
 ### Features & Improvements

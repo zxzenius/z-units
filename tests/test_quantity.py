@@ -461,6 +461,28 @@ def test_dimensionless():
     assert x.unit == x.base_unit
 
 
+def test_class_level_units():
+    """Test that units/symbols/base_unit are accessible at class level without instantiation."""
+    # class-level access
+    assert isinstance(q.Pressure.units, list)
+    assert all(isinstance(u, q.Unit) for u in q.Pressure.units)
+    assert "kPa" in q.Pressure.symbols
+    assert "Pa" in q.Pressure.symbols
+    assert q.Pressure.base_unit.symbol == "Pa"
+
+    # instance-level access still works
+    p = q.Pressure(100, "kPa")
+    assert p.units == q.Pressure.units
+    assert p.symbols == q.Pressure.symbols
+    assert p.base_unit == q.Pressure.base_unit
+
+    # verify on other quantity types
+    assert q.Length.base_unit.symbol == "m"
+    assert "km" in q.Length.symbols
+    assert q.Temperature.base_unit.symbol == "C"
+    assert "K" in q.Temperature.symbols
+
+
 def test_operation():
     x = q.Length(1)
     assert x == q.Length(1)
