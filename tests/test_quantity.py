@@ -499,3 +499,93 @@ def test_operation():
     assert q.Length(200, "cm") >= q.Length(1000, "mm")
     assert q.Length(1, "cm") * 100 == q.Length(1, "m")
     assert 200 * q.Length(1, "mm") == q.Length(2, "dm")
+
+
+class TestNoneValue:
+    def test_init_none_default_unit(self):
+        x = q.Length(None)
+        assert x.value is None
+        assert x.unit == q.Length.base_unit
+
+    def test_init_none_explicit_unit(self):
+        x = q.Temperature(None, "K")
+        assert x.value is None
+        assert x.unit.symbol == "K"
+
+    def test_to_returns_same_type(self):
+        x = q.Temperature(None, "C")
+        result = x.to("F")
+        assert isinstance(result, q.Temperature)
+        assert result.value is None
+        assert result.unit.symbol == "F"
+
+    def test_to_same_unit_returns_self(self):
+        x = q.Length(None, "m")
+        assert x.to("m") is x
+
+    def test_to_chaining(self):
+        x = q.Temperature(None, "C")
+        result = x.to("F").to("K")
+        assert isinstance(result, q.Temperature)
+        assert result.value is None
+        assert result.unit.symbol == "K"
+
+    def test_to_base(self):
+        x = q.Length(None, "km")
+        result = x.to_base()
+        assert isinstance(result, q.Length)
+        assert result.value is None
+        assert result.unit == q.Length.base_unit
+
+    def test_to_preserves_kwargs(self):
+        x = q.Pressure(None, "kPag", atm_pressure=50e3)
+        result = x.to("kPa")
+        assert isinstance(result, q.Pressure)
+        assert result.value is None
+        assert result.unit.symbol == "kPa"
+
+    def test_repr(self):
+        x = q.Length(None)
+        assert repr(x) == "<Length(None, 'm')>"
+
+    def test_str(self):
+        x = q.Length(None)
+        assert str(x) == "None"
+
+    def test_format_plain(self):
+        x = q.Length(None)
+        assert f"{x}" == "None"
+
+    def test_format_with_unit(self):
+        x = q.Length(None, "km")
+        assert f"{x:uq}" == "None km"
+
+    def test_mul(self):
+        x = q.Length(None, "m")
+        result = x * 5
+        assert isinstance(result, q.Length)
+        assert result.value is None
+        assert result.unit.symbol == "m"
+
+    def test_rmul(self):
+        x = q.Length(None, "m")
+        result = 5 * x
+        assert isinstance(result, q.Length)
+        assert result.value is None
+
+    def test_eq_both_none(self):
+        assert q.Length(None) == q.Length(None)
+
+    def test_eq_none_vs_value(self):
+        assert q.Length(None) != q.Length(1)
+        assert q.Length(1) != q.Length(None)
+
+    def test_gt_with_none(self):
+        assert not (q.Length(None) > q.Length(1))
+        assert not (q.Length(1) > q.Length(None))
+        assert not (q.Length(None) > q.Length(None))
+
+    def test_ge_with_none(self):
+        assert not (q.Length(None) >= q.Length(1))
+        assert not (q.Length(1) >= q.Length(None))
+        assert not (q.Length(None) >= q.Length(None))

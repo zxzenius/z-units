@@ -1,3 +1,9 @@
+## Release v0.4.1 (2026.0622)
+
+### Features & Improvements
+
+- `Quantity` with `None` value now propagates through unit conversions, arithmetic, formatting and comparisons instead of returning bare `None`.
+
 ## Release v0.4.0 (2026.0616)
 
 ### Features & Improvements

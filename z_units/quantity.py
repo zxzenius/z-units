@@ -55,12 +55,13 @@ class Quantity(metaclass=QuantityMeta):
         self._kwargs = kwargs
 
     def to(self, unit: str | Unit, **kwargs):
-        if self.value is None:
-            return None
         unit = self.unit_registry.get_unit(str(unit))
         if unit == self.unit and not kwargs:
             return self
         merged_kwargs = {**self._kwargs, **kwargs}
+        if self.value is None:
+            return self.__class__(None, unit, **merged_kwargs)
+
         ref_value = self._unit.to_base_unit(self.value, **self._kwargs)
         value = unit.from_base_unit(ref_value, **merged_kwargs)
         return self.__class__(value, unit, **merged_kwargs)
@@ -102,12 +103,18 @@ class Quantity(metaclass=QuantityMeta):
             unit = format(self.unit, format_spec[pos + 1 :])
             format_spec = format_spec[0:pos]
             if unit:
+                if self.value is None:
+                    return " ".join(["None", unit])
                 return " ".join([format(self.value, format_spec), unit])
 
+        if self.value is None:
+            return "None"
         return format(self.value, format_spec)
 
     def __mul__(self, other):
         if isinstance(other, (int, float)):
+            if self.value is None:
+                return self.__class__(None, self.unit)
             return self.__class__(self.value * other, self.unit)
 
         return NotImplemented
@@ -123,11 +130,17 @@ class Quantity(metaclass=QuantityMeta):
 
     def __gt__(self, other):
         if isinstance(other, self.__class__):
-            return self.to_base().value > other.to_base().value
+            left_value, right_value = self.to_base().value, other.to_base().value
+            if left_value is None or right_value is None:
+                return False
+            return left_value > right_value
 
     def __ge__(self, other):
         if isinstance(other, self.__class__):
-            return self.to_base().value >= other.to_base().value
+            left_value, right_value = self.to_base().value, other.to_base().value
+            if left_value is None or right_value is None:
+                return False
+            return left_value >= right_value
 
     @property
     def unit(self) -> Unit:
